@@ -41,9 +41,9 @@ $config = array(
             'allowAutoLogin' => true,
         ),
         'db' => array(
-            'connectionString' => 'mysql:host=localhost;dbname=newzakup',
-            'username' => 'u_newzakup',
-            'password' => 'IqUT5Ex0',
+            'connectionString' => 'mysql:host=localhost;dbname=devproforg',
+            'username' => 'u_bozhok',
+            'password' => 'bozhok1984',
             'emulatePrepare' => true,
             'charset' => 'utf8',
             'tablePrefix' => 'z_',
@@ -122,11 +122,11 @@ $config = array(
                     'levels'=>'trace, info',
                     'categories'=>'system.*',
                 ),*/
-                array(
+                /*array(
                     'class'=>'CEmailLogRoute',
                     'levels'=>'error, notice',
                     'emails'=>'dmitriy.bozhok@gmail.com',
-                ),
+                ),*/
             ),
         ),
     ),
