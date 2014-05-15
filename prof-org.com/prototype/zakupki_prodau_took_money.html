@@ -1,0 +1,473 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>BlackBox</title>
+	<link rel="stylesheet" href="css/smoothness/jquery-ui-1.7.2.custom.css" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="css/smoothness/ui.spinner.css" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="css/colorpicker.css" type="text/css" />
+	<link rel="stylesheet" href="css/jquery.treeview.css" type="text/css" />
+	<style>
+	body {
+		font-size:13px;
+		font-family: Arial, Helvetica, sans-serif;
+		color: #333;
+	}
+	#napkeeCanvas {
+		position:absolute;
+		left:0px;
+		top:0px;
+	}
+	.napkeeComponent {
+		position:absolute;
+		font-size:13px;
+		font-family: Arial, Helvetica, sans-serif;
+		white-space: nowrap;
+	}
+	.napkeeRelativeComponent {
+		position:absolute;
+		font-size:13px;
+		font-family: Arial, Helvetica, sans-serif;
+		white-space: nowrap;
+	}
+	
+	
+#nap0{
+	left:320px;
+	top:0px;
+	width:1300px;
+	height:1400px;
+	z-index:0;
+	border:0px solid;
+}
+
+#nap0table{
+	left:320px;
+	top:0px;
+	width:1300px;
+	height:1400px;
+	z-index:1;
+	display:none;
+}
+
+#nap0label{
+	font-size: 13px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+	text-align:left;
+}
+	
+#nap3_0_0{
+	left:491px;
+	top:109px;
+	width:103px;
+	height: 33px;
+	z-index:0;
+	background-color:#FFFFFF;
+	color:#000000;
+	font-size: 16px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+}
+	
+#nap3_0_1{
+	left:686px;
+	top:109px;
+	width:103px;
+	height: 33px;
+	z-index:1;
+	background-color:#FFFFFF;
+	color:#000000;
+	font-size: 16px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+}
+	
+#nap3_0_2{
+	left:865px;
+	top:109px;
+	width:103px;
+	height: 33px;
+	z-index:2;
+	background-color:#FFFFFF;
+	color:#000000;
+	font-size: 16px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+}
+	
+#nap3_1{
+	left:1043px;
+	top:109px;
+	width:103px;
+	height: 33px;
+	z-index:1;
+	background-color:#FFFFFF;
+	color:#000000;
+	font-size: 16px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+}
+	
+#nap5{
+	left:659px;
+	top:324px;
+	width:253px;
+	z-index:2;
+	font-size: 10px;
+}
+	
+#nap6{
+	left:498px;
+	top:319px;
+	width:69.30000000000001px;
+	height:21px;
+	z-index:3;
+	font-size: 13px;
+	font-style:normal;
+	font-weight:bold;
+	text-decoration:none;
+	text-align:left;
+	color:#000000;
+}
+	
+#nap7{
+	left:629px;
+	top:333px;
+	width:33px;
+	height:21px;
+	z-index:4;
+	font-size: 13px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+	text-align:left;
+	color:#000000;
+}
+	
+#nap8{
+	left:918px;
+	top:335px;
+	width:112.2px;
+	height:21px;
+	z-index:5;
+	font-size: 13px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+	text-align:left;
+	color:#000000;
+}
+	
+#nap10{
+	left:498px;
+	top:369px;
+	width:51.7px;
+	height:21px;
+	z-index:6;
+	font-size: 13px;
+	font-style:normal;
+	font-weight:bold;
+	text-decoration:none;
+	text-align:left;
+	color:#000000;
+}
+	
+#nap12{
+	left:660px;
+	top:376px;
+	width:253px;
+	z-index:7;
+	font-size: 10px;
+}
+	
+#nap13{
+	left:628px;
+	top:385px;
+	width:44px;
+	height:21px;
+	z-index:8;
+	font-size: 13px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+	text-align:left;
+	color:#000000;
+}
+	
+#nap14{
+	left:915px;
+	top:387px;
+	width:198.00000000000003px;
+	height:21px;
+	z-index:9;
+	font-size: 13px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+	text-align:left;
+	color:#000000;
+}
+	
+#nap15{
+	left:498px;
+	top:435px;
+	width:389.40000000000003px;
+	height:21px;
+	z-index:10;
+	font-size: 13px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+	text-align:left;
+	color:#000000;
+}
+	
+#nap16{
+	left:498px;
+	top:488px;
+	width:145px;
+	height: 24px;
+	z-index:11;
+	background-color:#FFFFFF;
+	color:#000000;
+	font-size: 13px;
+	font-style:normal;
+	font-weight:normal;
+	text-decoration:none;
+}
+	
+	</style>
+	<link rel="stylesheet" href="css/style.css" type="text/css" />
+	
+
+	<script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
+	<script type="text/javascript" src="js/ui.spinner.js"></script>
+	<script type="text/javascript" src="js/jquery.querystring.js"></script>
+	<script type="text/javascript" src="js/jquery.substitute.js"></script>
+	<script type="text/javascript" src="js/napkee.templater.js"></script>
+	<script type="text/javascript" src="js/napkee.tabs.js"></script>
+	<script type="text/javascript" src="js/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="js/jquery.treeview.min.js"></script>
+	<script type="text/javascript" src="js/jquery.jmap.min.js"></script>
+	<script type="text/javascript" src="js/colorpicker.js"></script>
+	<script type="text/javascript" src="js/jquery.swfobject.1-0-5.min.js"></script>
+	<script type="text/javascript" src="js/jquery.tagcloud.min.js"></script>
+	<script type="text/javascript" src="js/jquery.iphone-switch.js"></script>
+	<script type="text/javascript" src="js/swfobject.js"></script>
+	<!--[if lt IE 7.]>
+		<script defer type="text/javascript" src="js/pngfix.js"></script>
+	<![endif]-->
+	
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function(){
+			$(".napkeeVerticalScrollHandle").draggable({ containment: 'parent', axis: 'y', cursor: 'pointer'  });
+			$(".napkeeVerticalScrollArrowUp").click(function(){
+				var numericTop = ($(this).next().find("div").css("top").substring(0,$(this).next().find("div").css("top").length-2))*1;
+				if ($(this).next().find("div").css("top") == null || $(this).next().find("div").css("top") == "auto") {
+					numericTop = 0;
+				}
+				if (numericTop>0){
+					$(this).next().find("div").css("top",(numericTop-2)+"px");
+				}
+			});
+			
+			$(".napkeeVerticalScrollArrowDown").click(function(){
+				var numericTop = ($(this).prev().find("div").css("top").substring(0,$(this).prev().find("div").css("top").length-2))*1;
+				if ($(this).prev().find("div").css("top") == null || $(this).prev().find("div").css("top") == "auto") {
+					numericTop = 0;
+				}
+				if (numericTop+$(this).prev().find("div").height()<$(this).prev().height()-2){
+					$(this).prev().find("div").css("top",(numericTop+2)+"px");
+				}
+			});
+			$(".napkeeHorizontalScrollHandle").draggable({ containment: 'parent', axis: 'x', cursor: 'pointer'  });
+			$(".napkeeHorizontalScrollArrowLeft").click(function(){
+				var numericLeft = ($($(this).parent().next().children()[0]).find("div").css("left").substring(0,$($(this).parent().next().children()[0]).find("div").css("left").length-2))*1;
+				if ($($(this).parent().next().children()[0]).find("div").css("left") == null || $($(this).parent().next().children()[0]).find("div").css("left") == "auto") {
+					numericLeft = 0;
+				}
+				if (numericLeft>0){
+					$($(this).parent().next().children()[0]).find("div").css("left",(numericLeft-1)+"px");
+				}
+			});
+			
+			$(".napkeeHorizontalScrollArrowRight").click(function(){
+				var numericLeft = ($($(this).parent().prev().children()[0]).find("div").css("left").substring(0,$($(this).parent().prev().children()[0]).find("div").css("left").length-2))*1;
+				if ($($(this).parent().prev().children()[0]).find("div").css("left") == null || $($(this).parent().prev().children()[0]).find("div").css("left") == "auto") {
+					numericLeft = 0;
+				}
+				if (numericLeft+$($(this).parent().prev().children()[0]).find("div").width()<$($(this).parent().prev().children()[0]).find("div").parent().width()-2){
+					$($(this).parent().prev().children()[0]).find("div").css("left",(numericLeft+1)+"px");
+				}
+			});
+			
+$("#nap0").click(function(event){
+	
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap3_0_0").click(function(event){
+	showMockup('zakupki_zaprosi.html');
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap3_0_1").click(function(event){
+	showMockup('zakupki_prodau.html');
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap3_0_2").click(function(event){
+	showMockup('zakupki_pokupau.html');
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap3_1").click(function(event){
+	showMockup('zakupki_dengi.html');
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$('#nap5').slider({
+	min: 0,
+	max: 100,
+	orientation: 'horizontal',
+	value: 100
+});
+$('#nap5').slider('enable');
+	
+$("#nap6").click(function(event){
+	
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap7").click(function(event){
+	
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap8").click(function(event){
+	
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap10").click(function(event){
+	
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$('#nap12').slider({
+	min: 0,
+	max: 100,
+	orientation: 'horizontal',
+	value: 100
+});
+$('#nap12').slider('enable');
+	
+$("#nap13").click(function(event){
+	
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap14").click(function(event){
+	
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap15").click(function(event){
+	
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+$("#nap16").click(function(event){
+	showMockup('zakupki_prodau_new.html');
+	event.stopPropagation();
+	event.preventDefault();
+
+});
+	
+		});
+	</script>
+	
+</head>
+
+<body>
+
+		
+
+
+		
+<img id="nap0" src="images/imported/prodau_took_money_nap0.png" class="napkeeComponent napkeeImage" />
+<table border="0" id="nap0table" class="napkeeComponent napkeeImageTable" >
+	<tr>
+		<td align="center" valign="middle">
+			<span id="nap0label" class="napkeeImageLabel"></span>
+		</td>
+	</tr>
+</table>
+
+	
+<button id="nap3_0_0" type="button" class="napkeeComponent napkeeButton">ЗАПРОСЫ</button>
+	
+<button id="nap3_0_1" type="button" class="napkeeComponent napkeeButton">ПРОДАЮ</button>
+	
+<button id="nap3_0_2" type="button" class="napkeeComponent napkeeButton">ПОКУПАЮ</button>
+	
+<button id="nap3_1" type="button" class="napkeeComponent napkeeButton">ДЕНЬГИ</button>
+	
+<div id="nap5" class="napkeeComponent napkeeHslider"></div>
+	
+<span id="nap6" class="napkeeComponent napkeeLabel ">Мне нужно</span>
+	
+<span id="nap7" class="napkeeComponent napkeeLabel ">0 грн</span>
+	
+<span id="nap8" class="napkeeComponent napkeeLabel ">сумма сделки грн</span>
+	
+<span id="nap10" class="napkeeComponent napkeeLabel ">На срок</span>
+	
+<div id="nap12" class="napkeeComponent napkeeHslider"></div>
+	
+<span id="nap13" class="napkeeComponent napkeeLabel ">0 дней</span>
+	
+<span id="nap14" class="napkeeComponent napkeeLabel ">отсрочка платежа покупателя</span>
+	
+<span id="nap15" class="napkeeComponent napkeeLabel ">Ваша цена 100 грн с учётом скидки к дате оплаты 5 ноября</span>
+	
+<button id="nap16" type="button" class="napkeeComponent napkeeButton">ПОЛУЧИТЬ ДЕНЬГИ</button>
+	
+	
+
+
+</body>
+</html>
