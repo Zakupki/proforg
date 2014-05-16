@@ -12,6 +12,10 @@ class CompanyController extends FrontController
     {
        $this->render('index');
     }
+    public function actionUpdate()
+    {
+        $this->render('update');
+    }
 
 
 }

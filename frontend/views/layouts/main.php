@@ -23,6 +23,14 @@
         <div class="r">
                 <a class="b" href="/site/logout/">Выход</a>
         </div>
+        <?}else{?>
+            <div class="l">
+                <a class="b link" href="#">Обратная связь</a>
+                <a class="b link" href="#">Корпоративным клиентам</a>
+            </div>
+            <div class="r">
+                <div class="b phone">8 050 5176012</div>
+            </div>
         <?}?>
         <a class="logo" href="#"><img src="/img/logo.png"></a>
     </div>

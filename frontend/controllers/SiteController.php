@@ -10,7 +10,7 @@ class SiteController extends FrontController
 
     public function actionIndex()
     {
-       $this->render('index');
+        $this->redirect('/site/login/');
     }
 
     public function actionRegister()
