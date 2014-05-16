@@ -1,6 +1,6 @@
 <?php
 
-class FinanceController extends FrontController
+class CompanyController extends FrontController
 {
     public function init()
     {
@@ -10,8 +10,7 @@ class FinanceController extends FrontController
 
     public function actionIndex()
     {
-        $requests=Request::model()->findAll();
-        $this->render('index',array('requests'=>$requests));
+       $this->render('index');
     }
 
 
