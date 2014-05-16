@@ -122,3 +122,91 @@ return isNaN(e)?d:e},f=p(u[0]),m=Math.max(f,p(u[1]||"")),f=s?Math.max(f,s.getFul
     });
 
 })(jQuery);
+
+
+
+/* ------------------------------------------------------------------------
+	prettyCheckboxes Version: 1.2
+------------------------------------------------------------------------- */
+(function($){
+$.fn.prettyCheckboxes = function(o){
+	return this.each(function(){
+		var defaults = {
+					className: 'prettyCheckbox',
+					hiddenClass: 'visuallyhidden',
+					labelTitle: '',
+          beforeClick: function(){}
+				};
+		if(o == 'remove'){
+			var	$input = $(this),
+					$label = $('label[for="' + $input.attr('id') + '"]');
+			if (!$label.length) $label = $input.closest('label');
+			$input.removeData('label').removeClass(defaults.hiddenClass);
+			$label.removeClass(defaults.className + ' checked').unbind('.prettyCheckbox').find('.holder').remove();
+			return;
+		}
+		o = $.extend(defaults, o);
+		var $input = $(this),
+				//find label - for attr or parent:
+				$label = $('label[for="' + $input.attr('id') + '"]');
+		if (!$label.length) $label = $input.closest('label');
+		if (!$label.length){
+			$label = $input.wrap('<label />').parent();
+		}
+
+		if($label.hasClass(o.className)){
+      var $i = $('input#' + $label.attr('for'));
+      if (!$i.length) $i = $label.find('input').eq(0);
+      if ($i.prop('checked')) {
+        $label.addClass('checked');
+      } else {
+        $label.removeClass('checked');
+      }
+      return;
+    }
+		
+		$label.attr('title', o.labelTitle);
+
+		$input.data('label', $label);
+		//label is used as container for styling:
+		$input.before('<span class="holder"></span>');
+		if ($input.prop('checked')) {
+			$label.addClass('checked')
+		};
+		$label.addClass(o.className).addClass($input.attr('type'));
+		$input.addClass(o.hiddenClass);
+		//all actions processed via click on label:
+		$label.bind('click.prettyCheckbox', function(e){
+      e.preventDefault();
+			var $l = $label,
+					$i = $('input#' + $l.attr('for'));
+			if (!$i.length) $i = $l.find('input').eq(0);
+			if($i.is(':checkbox')){
+				//checkbox action:
+				if ($i.prop('checked')) {
+					$l.removeClass('checked');
+					$i.prop('checked', false)
+				} else {
+					$l.addClass('checked');
+					$i.prop('checked', true)
+				}
+				$i.trigger('change');
+			} else {
+				//radio buttons action - only if this input isn't checked:
+				if(!$i.prop('checked')){
+					$('input[name="'+$i.attr('name')+'"]').each(function(){
+						$(this).prop('checked', false);
+            if($(this).data('label')){
+              $(this).data('label').removeClass('checked');              
+            }
+					});
+					$i.prop('checked', true);
+          $i.trigger('change');
+					$l.addClass('checked');
+				}
+			}
+		});
+	});
+};
+})(jQuery);
+

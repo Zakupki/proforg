@@ -1,6 +1,11 @@
-
+function doForms(){
+	$('input[type=checkbox]').prettyCheckboxes();
+}
 
 $(function(){
+
+	doForms();
+
 	$('.withdraw-form').each(function(){
 		var $root = $(this),
 				$slider = $root.find('.slider'),
@@ -29,4 +34,5 @@ $(function(){
 			$sumInput.val(value);
 		}
 	});
+
 });
