@@ -11,47 +11,20 @@
                     <th>Остаток</th>
                     <th></th>
                 </tr>
+                <?
+                if(isset($requests))
+                foreach($requests as $req){?>
                 <tr>
                     <td><a class="btn check" href="#"></a></td>
-                    <td class="gray">23.01.14 / 14:00</td>
-                    <td><a href="#">ООО Хлебодар</a></td>
-                    <td><a href="#">Иванов Иван Иванович</a></td>
-                    <td class="num gray">2300</td>
-                    <td class="num">2200</td>
-                    <td class="num gray">100</td>
+                    <td class="gray"><?=str_replace(',',' /',Yii::app()->dateFormatter->formatDateTime($req->date_create, 'short', 'short')); ?></td>
+                    <td><a href="#"><?=$req->company->title;?></a></td>
+                    <td><a href="#"><?=$req->user->last_name;?> <?=$req->user->first_name;?></a></td>
+                    <td class="num gray"><?=$req->available;?></td>
+                    <td class="num"><?=$req->value;?></td>
+                    <td class="num gray"><?=$req->left;?></td>
                     <td class="actions"><a class="btn cross" href="#"></a></td>
                 </tr>
-                <tr>
-                    <td><a class="btn check" href="#"></a></td>
-                    <td class="gray">23.01.14 / 14:00</td>
-                    <td><a href="#">ООО Хлебодар</a></td>
-                    <td><a href="#">Иванов Иван Иванович</a></td>
-                    <td class="num gray">23000</td>
-                    <td class="num">2200</td>
-                    <td class="num gray">1100</td>
-                    <td class="actions"><a class="btn cross" href="#"></a></td>
-                </tr>
-                <tr>
-                    <td><a class="btn check" href="#"></a></td>
-                    <td class="gray">23.01.14 / 14:00</td>
-                    <td><a href="#">ООО Хлебодар</a></td>
-                    <td><a href="#">Иванов Иван Иванович</a></td>
-                    <td class="num gray">2300</td>
-                    <td class="num">2200</td>
-                    <td class="num gray">100</td>
-                    <td class="actions"><a class="btn cross" href="#"></a></td>
-                </tr>
-                <tr>
-                    <td><a class="btn check" href="#"></a></td>
-                    <td class="gray">23.01.14 / 14:00</td>
-                    <td><a href="#">ООО Хлебодар</a></td>
-                    <td><a href="#">Иванов Иван Иванович</a></td>
-                    <td class="num gray">23000</td>
-                    <td class="num">2200</td>
-                    <td class="num gray">1100</td>
-                    <td class="actions"><a class="btn cross" href="#"></a></td>
-                </tr>
-
+                <?}?>
             </table>
         </div>
     </div>
