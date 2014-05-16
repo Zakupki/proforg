@@ -26,5 +26,8 @@
                 </tr>
                 <?}?>
             </table>
+            <div class="actions mt20 clearfix">
+                <a class="btn fr" href="/company/update">Добавить компанию</a>
+            </div>
         </div>
     </div>

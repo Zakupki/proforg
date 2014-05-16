@@ -1496,3 +1496,2157 @@ function log() {
 
 }));
 
+
+
+// ikSelect 0.9.1
+// Copyright (c) 2012 Igor Kozlov
+// i10k.ru
+
+;(function ($, window, document, undefined) {
+	var $window = $(window);
+	var defaults = {
+		syntax: "<div class=\"ik_select_link\"><span class=\"ik_select_link_text\"></span></div><div class=\"ik_select_block\"><div class=\"ik_select_list\"></div></div>",
+		autoWidth: true,
+		ddFullWidth: true,
+		customClass: "",
+		ddCustomClass: "",
+		ddMaxHeight: 200,
+		filter: false,
+		skipFirst: false,
+		keepInsideWindow: true,
+		onShow: function () {},
+		onHide: function () {},
+		onKeyUp: function () {},
+		onKeyDown: function () {},
+		onHoverMove: function () {}
+	};
+
+	var selectOpened = $([]); // currently opened select
+	var shownOnPurpose = false; // true if show_dropdown was called using API
+	var scrollbarWidth = -1;
+
+	$.browser = $.browser || {};
+	$.browser.webkit = $.browser.webkit || (/webkit/i.test(navigator.userAgent.toLowerCase()));
+	$.browser.mobile = (/iphone|ipad|ipod|android/i.test(navigator.userAgent.toLowerCase()));
+	$.browser.operamini = Object.prototype.toString.call(window.operamini) === "[object OperaMini]";
+
+	function IkSelect(element, options) {
+		var ikselect = this;
+
+		ikselect.element = element;
+
+		ikselect.options = $.extend({}, defaults, options);
+
+		ikselect._defaults = defaults;
+
+		if (ikselect.element === undefined) {
+			return ikselect;
+		}
+
+		ikselect.fakeSelect = $("<div class=\"ik_select\">" + ikselect.options.syntax + "</div>"); // fake select object made with passed syntax
+		ikselect.select = $(ikselect.element); // original select
+		ikselect.link = $(".ik_select_link", ikselect.fakeSelect); // fake select
+		ikselect.linkText = $(".ik_select_link_text", ikselect.fakeSelect); // fake select's text
+		ikselect.block = $(".ik_select_block", ikselect.fakeSelect); // fake select's dropdown
+		ikselect.list = $(".ik_select_list", ikselect.fakeSelect); // fake select's list inside of dropdown
+		ikselect.listInner = $("<div class=\"ik_select_list_inner\"/>"); // support block for scroll
+
+		ikselect.filter = $([]); // filter text input
+		ikselect.listItemsOriginal = $([]); // contains original list items when filtering
+		ikselect.nothingFoundText = $("<div class=\"ik_nothing_found\"/>").html(ikselect.select.data("nothingfoundtext"));
+
+		if (ikselect.options.filter && ! $.browser.mobile) {
+			ikselect.filterWrap = $(".ik_select_filter_wrap", ikselect.fakeSelect);
+
+			if (! ikselect.filterWrap.length) {
+				ikselect.filterWrap = $("<div class=\"ik_select_filter_wrap\"/>");
+			}
+
+			ikselect.filter = $("<input type=\"text\" class=\"ik_select_filter\">");
+
+			ikselect.filterWrap.append(ikselect.filter);
+		}
+
+		ikselect.active = $([]);
+		ikselect.hover = $([]);
+		ikselect.hoverIndex = -1;
+
+		ikselect.listItems = $([]);
+		ikselect.listOptgroupItems = $([]);
+
+		ikselect.init();
+	}
+
+	$.extend(IkSelect.prototype, {
+		init: function () {
+			var ikselect = this;
+
+			var fakeSelect = ikselect.fakeSelect;
+			var select = ikselect.select;
+			var link = ikselect.link;
+			var block = ikselect.block;
+			var list = ikselect.list;
+			var listInner = ikselect.listInner;
+
+			var filter = ikselect.filter;
+
+			list.append(listInner);
+
+			fakeSelect.addClass(ikselect.options.customClass);
+			block.addClass(ikselect.options.ddCustomClass);
+
+			//creating fake option list
+			ikselect.reset_all();
+
+			if (select.attr("disabled")) {
+				ikselect.disable_select();
+			}
+
+			// click event for fake select
+			link.bind("click.ikSelect", function () {
+				if (link.hasClass("ik_select_link_disabled")) {
+					return this;
+				}
+				if (selectOpened.length) {
+					var me = selectOpened.is(ikselect.select);
+					selectOpened.data("plugin_ikSelect").hide_block();
+					if(me){
+						return this;
+					}
+				}
+				ikselect.show_block();
+				if (ikselect.options.filter) {
+					filter.focus();
+				} else {
+					select.focus();
+				}
+			});
+
+			// when focus is on original select add "focus" class to the fake one
+			select.bind("focus.ikSelect", function () {
+				if (link.hasClass("ik_select_link_disabled")) {
+					return this;
+				}
+				link.addClass("ik_select_link_focus");
+
+				// scoll the window so that focused select is visible
+				if ((fakeSelect.offset().top + fakeSelect.height() > $window.scrollTop() + $window.height()) || (fakeSelect.offset().top + fakeSelect.height() < $window.scrollTop())) {
+					$window.scrollTop(fakeSelect.offset().top - $window.height() / 2);
+				}
+			});
+
+			// when focus lost remove "focus" class from the fake one
+			select.bind("blur.ikSelect", function () {
+				if (link.hasClass("ik_select_link_disabled")) {
+					return this;
+				}
+				link.removeClass("ik_select_link_focus");
+			});
+
+			// sync fake select on mobile devices and a way to outplay the changing of select on scroll anywhere in IE6
+			select.bind("change.ikSelect", function () {
+				ikselect._select_fake_option();
+			});
+
+			// filtering using filter
+			var filterValOld = "";
+
+			filter.bind("keyup.ikSelect", function () {
+				listInner.show();
+
+				if (filterValOld === "" && ! ikselect.listItemsOriginal.length) {
+					ikselect.listItemsOriginal = ikselect.listItems;
+				}
+
+				if (filter.val() !== filterValOld) {
+					if (filter.val() === "") {
+						ikselect.listItems = ikselect.listItemsOriginal.show();
+						ikselect.listOptgroupItems.show();
+						ikselect.nothingFoundText.remove();
+					} else {
+						ikselect.listItems = ikselect.listItemsOriginal.show();
+						ikselect.listOptgroupItems.show();
+
+						ikselect.listItems.each(function () {
+							if ($(".ik_select_option", this).html().search(new RegExp(filter.val(), "i")) === -1) {
+								ikselect.listItems = ikselect.listItems.not(this);
+								$(this).hide();
+							}
+						});
+
+						if (ikselect.listItems.length) {
+							ikselect.nothingFoundText.remove();
+							ikselect.listOptgroupItems.each(function () {
+								var optgroup = $(this);
+								if (! $("> ul > li:visible", optgroup).length) {
+									optgroup.hide();
+								}
+							});
+
+							if (! ikselect.listItems.filter(ikselect.hover).length && ikselect.listItems.length) {
+								ikselect._move_to(ikselect.listItems.eq(0));
+							}
+
+							ikselect.hoverIndex = ikselect.listItems.index(ikselect.hover);
+						} else {
+							listInner.hide();
+							list.append(ikselect.nothingFoundText);
+						}
+					}
+
+					filterValOld = filter.val();
+				}
+			});
+
+			// keyboard controls for the fake select and fake dropdown
+			select.add(filter).bind("keydown.ikSelect keyup.ikSelect", function (event) {
+				var listItems = ikselect.listItems;
+
+				if (ikselect.hoverIndex < 0) {
+					ikselect.hoverIndex = listItems.index(ikselect.hover);
+				}
+
+				var keycode = event.which;
+				var type = event.type;
+
+				switch (keycode) {
+				case 40: //down
+					if (type === "keydown") {
+						event.preventDefault();
+						var next;
+
+						if (ikselect.hoverIndex < listItems.length - 1) {
+							next = listItems.eq(++ikselect.hoverIndex);
+
+							while (next && next.hasClass("ik_select_option_disabled")) {
+								next = listItems.filter(":eq(" + (++ikselect.hoverIndex) + ")");
+							}
+						}
+
+						if (next) {
+							ikselect._move_to(next);
+						}
+					}
+					break;
+				case 38: //up
+					if (type === "keydown") {
+						event.preventDefault();
+						var prev;
+						if (ikselect.hoverIndex > 0) {
+							prev = listItems.eq(--ikselect.hoverIndex);
+
+							while (prev && prev.hasClass("ik_select_option_disabled")) {
+								prev = listItems.filter(":eq(" + (--ikselect.hoverIndex) + ")");
+							}
+						}
+
+						if (prev) {
+							ikselect._move_to(prev);
+						}
+					}
+					break;
+				case 33: //page up
+				case 36: //home
+					if (type === "keydown") {
+						event.preventDefault();
+						ikselect._move_to(listItems.filter(".not(ik_select_option_disabled):first"));
+					}
+					break;
+				case 34: //page down
+				case 35: //end
+					if (type === "keydown") {
+						event.preventDefault();
+						ikselect._move_to(listItems.filter(".not(ik_select_option_disabled):last"));
+					}
+					break;
+				case 32: //space
+					if (type === "keydown" && $(this).is(select)) {
+						event.preventDefault();
+						if (! block.is(":visible")) {
+							link.click();
+						} else {
+							ikselect._select_real_option();
+						}
+					}
+					break;
+				case 13: //enter
+					if (type === "keydown" && block.is(":visible")) {
+						event.preventDefault();
+						ikselect._select_real_option();
+					}
+					break;
+				case 27: //esc
+					if (type === "keydown") {
+						event.preventDefault();
+						ikselect.hide_block();
+					}
+					break;
+				case 9: //tab
+					if (type === "keydown") {
+						if ($.browser.webkit && block.is(":visible")) {
+							event.preventDefault();
+						} else {
+							ikselect.hide_block();
+						}
+					}
+					break;
+				default:
+					if (type === "keyup" && $(this).is(select)) {
+						ikselect._select_fake_option();
+					}
+					break;
+				}
+
+				if (type === "keydown") {
+					ikselect.options.onKeyDown(ikselect, keycode);
+					select.trigger("ikkeydown", [ikselect, keycode]);
+				}
+				if (type === "keyup") {
+					ikselect.options.onKeyUp(ikselect, keycode);
+					select.trigger("ikkeyup", [ikselect, keycode]);
+				}
+			});
+
+			// appending fake select right after the original one
+			select.after(fakeSelect);
+
+			// appending filter if needed
+			if (ikselect.options.filter && ! $.browser.mobile) {
+				list.prepend(ikselect.filterWrap);
+			}
+
+			// set correct dimensions
+			ikselect.redraw();
+
+			select.appendTo(fakeSelect);
+		},
+
+		redraw: function () {
+			var ikselect = this;
+			var select = ikselect.select;
+			var fakeSelect = ikselect.fakeSelect;
+			var block = ikselect.block;
+			var list = ikselect.list;
+			var listInner = ikselect.listInner;
+
+			var autoWidth = ikselect.options.autoWidth; // set select width according to the longest option
+			var ddFullWidth = ikselect.options.ddFullWidth; // set dropdown width according to the longest option
+
+			// width calculations for the fake select when "autoWidth" is "true"
+			if (autoWidth || ddFullWidth) {
+				listInner.width("auto");
+				$("ul", listInner).width("auto");
+				fakeSelect.width("auto");
+
+				block.show().width(9999);
+				listInner.css("float", "left");
+				list.css("position", "absolute");
+				var maxWidthOuter = list.outerWidth(true);
+				var maxWidthInner = list.width();
+				list.css("position", "static");
+				block.hide().css("width", "100%");
+				listInner.css("float", "none");
+
+				if (scrollbarWidth === -1) {
+					var calculationContent = $("<div style=\"width:50px; height:50px; overflow:hidden; position:absolute; top:-200px; left:-200px;\"><div style=\"height:100px;\"></div>");
+					$("body").append(calculationContent);
+					var w1 = $("div", calculationContent).innerWidth();
+					calculationContent.css("overflow", "auto");
+					var w2 = $("div", calculationContent).innerWidth();
+					$(calculationContent).remove();
+					scrollbarWidth = w1 - w2;
+				}
+
+				var parentWidth = fakeSelect.parent().width();
+				if (ddFullWidth) {
+					block.width(maxWidthOuter);
+					listInner.width(maxWidthInner);
+					$("ul", listInner).width(maxWidthInner);
+				}
+				if (maxWidthOuter > parentWidth) {
+					maxWidthOuter = parentWidth;
+				}
+				if (autoWidth) {
+					fakeSelect.width(maxWidthOuter);
+				}
+			}
+
+			ikselect._fix_height();
+
+			// hide the original select
+			select.css({
+				position: "absolute",
+				margin: 0,
+				padding: 0,
+				left: -9999,
+				top: 0
+			});
+
+			// show the original select in mobile browsers
+			if ($.browser.mobile) {
+				select.css({
+					opacity: 0,
+					left: 0,
+					height: fakeSelect.height()
+				});
+			}
+		},
+
+		// creates or recreates dropdown and sets selected options's text into fake select
+		reset_all: function () {
+			var ikselect = this;
+			var select = ikselect.select;
+			var linkText = ikselect.linkText;
+			var listInner = ikselect.listInner;
+
+			// init fake select's text
+			linkText.html(select.val());
+
+			listInner.empty();
+
+			// creating an ul->li list identical to original dropdown
+			var newOptions = "";
+
+			newOptions += "<ul>";
+			select.children().each(function (i) {
+				if (this.tagName === "OPTGROUP") {
+					var optgroup = $(this);
+					newOptions += "<li class=\"ik_select_optgroup" + (optgroup.is(":disabled") ? " ik_select_optgroup_disabled" : "") + "\">";
+
+					newOptions += "<div class=\"ik_select_optgroup_label\">" + optgroup.attr("label") + "</div>";
+
+					newOptions += "<ul>";
+					$("option", optgroup).each(function () {
+						var option = $(this);
+						newOptions += "<li" + (option.is(":disabled") ? " class=\"ik_select_option_disabled\"" : "") + "><span class=\"ik_select_option" + (option[0].getAttribute("value") ? "" : " ik_select_option_novalue") + "\" title=\"" + option.val() + "\">" + option.html() + "</span></li>";
+					});
+					newOptions += "</ul>";
+
+					newOptions += "</li>";
+				} else {
+					var option = $(this),
+							style = (option.attr('style') !== undefined ? option.attr('style') : '') + (ikselect.options.skipFirst && i == 0 ? 'display:none;':'');
+					newOptions += "<li" + (option.is(":disabled") ? " class=\"ik_select_option_disabled\"" : "") + (style?' style="'+style+'"':'') + "><span class=\"ik_select_option" + (option[0].getAttribute("value") ? "" : " ik_select_option_novalue") + "\" title=\"" + option.val() + "\">" + option.html() + "</span></li>";
+				}
+			});
+			newOptions += "</ul>";
+			listInner.append(newOptions);
+			ikselect._select_fake_option();
+
+			ikselect.listOptgroupItems = $(".ik_select_optgroup", listInner);
+			ikselect.listItems = $("li:not(.ik_select_optgroup)", listInner);
+
+			ikselect._attach_list_events(ikselect.listItems);
+		},
+
+		// binds click and mouseover events to dropdown's options
+		_attach_list_events: function (jqObj) {
+			var ikselect = this;
+			var select = ikselect.select;
+			var link = ikselect.link;
+			var linkText = ikselect.linkText;
+
+			var listItemsEnabled = jqObj.not(".ik_select_option_disabled");
+
+			// click events for the fake select's options
+			listItemsEnabled.bind("click.ikSelect", function () {
+				var option = $(".ik_select_option", this),
+						style = $(this).attr('style');
+				linkText.html(option.html()).attr('style', style);
+				select.val(option.attr("title"));
+				ikselect.active.removeClass("ik_select_active");
+				ikselect.active = $(this).addClass("ik_select_active");
+				ikselect.hide_block();
+				if (option.hasClass("ik_select_option_novalue")) {
+					link.addClass("ik_select_link_novalue");
+				} else {
+					link.removeClass("ik_select_link_novalue");
+				}
+				select.change();
+				select.focus();
+			});
+
+			// hover event for the fake options
+			listItemsEnabled.bind("mouseover.ikSelect", function () {
+				ikselect.hoverIndex = -1;
+				ikselect.hover.removeClass("ik_select_hover");
+				ikselect.hover = $(this).addClass("ik_select_hover");
+			});
+
+      $(window).bind('resize.ikSelect, scroll.ikSelect, popupClose.ikSelect', function(e){
+        if(ikselect.block.is(':visible')){
+          ikselect.hide_block();          
+        }
+      });
+
+			listItemsEnabled.addClass("ik_select_has_events");
+		},
+
+		// unbinds click and mouseover events from dropdown's options
+		_detach_list_events: function (jqObj) {
+			jqObj.unbind(".ikSelect");
+
+			jqObj.removeClass("ik_select_has_events");
+		},
+
+
+		// change the defaults for all new instances
+		set_defaults: function (settings) {
+			$.extend(this._defaults, settings || {});
+			return this;
+		},
+
+		// hides dropdown
+		hide_block: function () {
+			var ikselect = this;
+			var fakeSelect = ikselect.fakeSelect;
+			var block = ikselect.block;
+			var select = ikselect.select;
+
+			if (ikselect.options.filter && ! $.browser.mobile) {
+				ikselect.filter.val("").keyup();
+			}
+
+			if (ikselect.listItemsOriginal.length) {
+				ikselect.listOptgroupItems.show();
+				ikselect.listItems = ikselect.listItemsOriginal.show();
+			}
+
+			block.hide().appendTo(fakeSelect).css({
+				"left": "",
+				"top": ""
+			});
+			select.removeClass(".ik_select_opened");
+
+			selectOpened = $([]);
+
+			select.focus();
+
+			ikselect.link.removeClass('open');
+			if(ikselect.link.parent('.ik_select_link_wrap').length){
+				ikselect.link.parent('.ik_select_link_wrap').removeClass('open');
+			}
+			ikselect.options.onHide(ikselect);
+			select.trigger("ikhide", [ikselect]);
+		},
+
+		// shows dropdown
+		show_block: function () {
+			var ikselect = this;
+			var select = ikselect.select;
+
+			if (selectOpened.is(ikselect.select) || ! ikselect.listItems.length) {
+				return ikselect;
+			} else if (selectOpened.length) {
+				selectOpened.data("plugin_ikSelect").hide_block();
+			}
+
+			var fakeSelect = ikselect.fakeSelect;
+			var block = ikselect.block;
+			var list = ikselect.list;
+			var listInner = ikselect.listInner;
+			var hover = ikselect.hover;
+			var active = ikselect.active;
+			var listItems = ikselect.listItems;
+
+			block.show();
+			select.addClass("ik_select_opened");
+			var ind = $("option", select).index($("option:selected", select));
+			hover.removeClass("ik_select_hover");
+			active.removeClass("ik_select_active");
+			var next = listItems.eq(ind);
+			next.addClass("ik_select_hover ik_select_active");
+			ikselect.hover = next;
+			ikselect.active = next;
+			ikselect.hoverIndex = ikselect.listItems.index(next);
+
+			// if the dropdown's right border is beyond window's edge then move the dropdown to the left so that it fits
+			block.css("left", "");
+			if (ikselect.options.keepInsideWindow && (ikselect.options.ddFullWidth && fakeSelect.offset().left + block.outerWidth(true) > $window.width())) {
+				block.css("left", (block.offset().left + block.outerWidth(true) - $window.width()) * (-1));
+			}
+
+			// if the dropdown's bottom border is beyond window's edge then move the dropdown to the left so that it fits
+			block.css("top", "");
+			if (ikselect.options.keepInsideWindow && (block.offset().top + block.outerHeight(true) > $window.scrollTop() + $window.height())) {
+				block.css("top", ((block.offset().top + block.outerHeight(true) - parseInt(block.css("top"), 10)) - ($window.scrollTop() + $window.height())) * (-1));
+			}
+
+			var left = block.offset().left;
+			if (left < 0) {
+				left = 0;
+			}
+			var top = block.offset().top;
+			block.width(block.width());
+			block.appendTo("body").css({
+				"left": left,
+				"top": top
+			});
+
+			var scrollTop = $(".ik_select_active", list).position().top - list.height() / 2;
+			list.data("ik_select_scrollTop", scrollTop);
+			listInner.scrollTop(scrollTop);
+
+			selectOpened = select;
+
+			ikselect.link.addClass('open');
+			if(ikselect.link.parent('.ik_select_link_wrap').length){
+				ikselect.link.parent('.ik_select_link_wrap').addClass('open');
+			}
+			ikselect.options.onShow(ikselect);
+			select.trigger("ikshow", [ikselect]);
+		},
+
+		// add options to the list
+		add_options: function (args) {
+			var ikselect = this;
+			var select = ikselect.select;
+			var listInner = ikselect.listInner;
+
+			var fakeSelectHtml = "", selectHtml = "";
+
+			$.each(args, function (index, value) {
+				if (typeof value === "string") {
+					fakeSelectHtml += "<li><span class=\"ik_select_option\" title=\"" + index + "\">" + value + "</span></li>";
+					selectHtml += "<option value=\"" + index + "\">" + value + "</option>";
+				} else if (typeof value === "object") {
+					var ul = $("> ul > li.ik_select_optgroup:eq(" + index + ") > ul", listInner); // 'index' - optgroup index
+
+					var optgroup = $("optgroup:eq(" + index + ")", select);
+					var newOptions = value; // 'value' - new option objects
+
+					$.each(newOptions, function (index, value) {
+						fakeSelectHtml += "<li><span class=\"ik_select_option\" title=\"" + index + "\">" + value + "</span></li>";
+						selectHtml += "<option value=\"" + index + "\">" + value + "</option>";
+					});
+
+					ul.append(fakeSelectHtml);
+					optgroup.append(selectHtml);
+					fakeSelectHtml = "";
+					selectHtml = "";
+				}
+			});
+
+			if (selectHtml !== "") {
+				$(":first", listInner).append(fakeSelectHtml);
+				select.append(selectHtml);
+			}
+
+			ikselect._fix_height();
+
+			ikselect.listItems = $("li:not(.ik_select_optgroup)", listInner);
+
+			ikselect._attach_list_events(ikselect.listItems);
+		},
+
+		// remove options from the list
+		remove_options: function (args) {
+			var ikselect = this;
+			var select = ikselect.select;
+			var listItems = ikselect.listItems;
+			var removeList = $([]);
+
+			$.each(args, function (index, value) {
+				$("option", select).each(function (index) {
+					if ($(this).val() === value) {
+						removeList = removeList.add($(this)).add(listItems.eq(index));
+					}
+				});
+			});
+
+			ikselect.listItems = listItems.not(removeList);
+			removeList.remove();
+			ikselect._select_fake_option();
+
+			ikselect._fix_height();
+		},
+
+		// sync selected option in the fake select with the original one
+		_select_real_option: function () {
+			var hover = this.hover;
+			var active = this.active;
+
+			active.removeClass("ik_select_active");
+			hover.addClass("ik_select_active").click();
+		},
+
+		// sync selected option in the original select with the fake one
+		_select_fake_option: function () {
+			var ikselect = this;
+			var select = ikselect.select;
+			var link = ikselect.link;
+			var linkText = ikselect.linkText;
+			var listItems = ikselect.listItems;
+
+			var selected = $(":selected", select);
+			var ind = $("option", select).index(selected);
+			linkText.html(selected.html()).attr('style', selected.attr('style'));
+
+			if (selected.length && selected[0].getAttribute("value")) {
+				link.removeClass("ik_select_link_novalue");
+			} else {
+				link.addClass("ik_select_link_novalue");
+			}
+
+			ikselect.hover = listItems.removeClass("ik_select_hover ik_select_active").eq(ind).addClass("ik_select_hover ik_select_active");
+			ikselect.active = ikselect.hover;
+		},
+
+		// disables select
+		disable_select: function () {
+			var select = this.select;
+			var link = this.link;
+
+			select.attr("disabled", "disabled");
+			link.addClass("ik_select_link_disabled");
+		},
+
+		// enables select
+		enable_select: function () {
+			var select = this.select;
+			var link = this.link;
+
+			select.removeAttr("disabled");
+			link.removeClass("ik_select_link_disabled");
+		},
+
+		// toggles select
+		toggle_select: function () {
+			var ikselect = this;
+			var link = this.link;
+
+			if (link.hasClass("ik_select_link_disabled")) {
+				ikselect.enable_select();
+			} else {
+				ikselect.disable_select();
+			}
+		},
+
+		// make option selected by value
+		make_selection: function (args) {
+			var ikselect = this;
+			var select = ikselect.select;
+
+			select.val(args);
+			ikselect._select_fake_option();
+		},
+
+		// disables optgroups
+		disable_optgroups: function (args) {
+			var ikselect = this;
+			var select = ikselect.select;
+			var list = ikselect.list;
+
+			$.each(args, function (index, value) {
+				var optgroup = $("optgroup:eq(" + value + ")", select);
+				optgroup.attr("disabled", "disabled");
+				$(".ik_select_optgroup:eq(" + value + ")", list).addClass("ik_select_optgroup_disabled");
+
+				ikselect.disable_options($("option", optgroup));
+			});
+
+			ikselect._select_fake_option();
+		},
+
+		// enables optgroups
+		enable_optgroups: function (args) {
+			var ikselect = this;
+			var select = ikselect.select;
+			var list = ikselect.list;
+
+			$.each(args, function (index, value) {
+				var optgroup = $("optgroup:eq(" + value + ")", select);
+				optgroup.removeAttr("disabled");
+				$(".ik_select_optgroup:eq(" + value + ")", list).removeClass("ik_select_optgroup_disabled");
+
+				ikselect.enable_options($("option", optgroup));
+			});
+
+			ikselect._select_fake_option();
+		},
+
+		// disables options
+		disable_options: function (args) {
+			var ikselect = this;
+			var select = ikselect.select;
+			var listItems = ikselect.listItems;
+
+			var optionSet = $("option", select);
+
+			$.each(args, function (index, value) {
+				if (typeof value === "object") {
+					$(this).attr("disabled", "disabled");
+					var option_index = optionSet.index(this);
+					var fakeOption = listItems.eq(ikselect.options.skipFirst?option_index-1:option_index).addClass("ik_select_option_disabled");
+					ikselect._detach_list_events(fakeOption);
+				} else {
+					optionSet.each(function (index) {
+						if ($(this).val() === value) {
+							$(this).attr("disabled", "disabled");
+							var fakeOption = listItems.eq(ikselect.options.skipFirst?index-1:index).addClass("ik_select_option_disabled");
+							ikselect._detach_list_events(fakeOption);
+							return this;
+						}
+					});
+				}
+			});
+
+			ikselect._select_fake_option();
+		},
+
+		// disables options
+		enable_options: function (args) {
+			var ikselect = this;
+			var select = ikselect.select;
+			var listItems = ikselect.listItems;
+
+			var optionSet = $("option", select);
+
+			$.each(args, function (index, value) {
+				if (typeof value === "object") {
+					$(this).removeAttr("disabled");
+					var option_index = optionSet.index(this);
+					var fakeOption = listItems.eq(option_index).removeClass("ik_select_option_disabled");
+					ikselect._attach_list_events(fakeOption);
+				} else {
+					optionSet.each(function (index) {
+						if ($(this).val() === value) {
+							$(this).removeAttr("disabled");
+							var fakeOption = listItems.eq(index).removeClass("ik_select_option_disabled");
+							ikselect._attach_list_events(fakeOption);
+							return this;
+						}
+					});
+				}
+			});
+
+			ikselect._select_fake_option();
+		},
+
+		// detaching plugin from the orignal select
+		detach_plugin: function () {
+			var ikselect = this;
+			var select = ikselect.select;
+			var fakeSelect = ikselect.fakeSelect;
+
+			select.unbind(".ikSelect").css({
+				"width": "",
+				"height": "",
+				"left": "",
+				"top": "",
+				"position": "",
+				"margin": "",
+				"padding": ""
+			});
+
+			fakeSelect.before(select);
+			fakeSelect.remove();
+		},
+
+		// controls class changes for options (hover/active states)
+		_move_to: function (jqObj) {
+			var ikselect = this;
+			var select = ikselect.select;
+			var linkText = ikselect.linkText;
+			var block = ikselect.block;
+			var list = ikselect.list;
+			var listInner = ikselect.listInner;
+
+			if (! block.is(":visible") && $.browser.webkit) {
+				ikselect.show_block();
+				return this;
+			}
+
+			ikselect.hover.removeClass("ik_select_hover");
+			jqObj.addClass("ik_select_hover");
+			ikselect.hover = jqObj;
+			if (! $.browser.webkit) {
+				ikselect.active.removeClass("ik_select_active");
+				jqObj.addClass("ik_select_active");
+				ikselect.active = jqObj;
+			}
+			if (! block.is(":visible") || $.browser.mozilla) {
+				if (! $.browser.mozilla) {
+					select.val($(".ik_select_option", jqObj).attr("title"));
+					select.change();
+				}
+				linkText.html($(".ik_select_option", jqObj).html());
+			}
+
+			var jqObjTopLine = jqObj.offset().top - list.offset().top - parseInt(list.css("paddingTop"), 10);
+			var jqObjBottomLine = jqObjTopLine + jqObj.outerHeight();
+			if (jqObjBottomLine > list.height()) {
+				listInner.scrollTop(listInner.scrollTop() + jqObjBottomLine - list.height());
+			} else if (jqObjTopLine < 0) {
+				listInner.scrollTop(listInner.scrollTop() + jqObjTopLine);
+			}
+
+			ikselect.options.onHoverMove(jqObj, ikselect);
+			select.trigger("ikhovermove", [jqObj, ikselect]);
+		},
+
+		// sets fixed height to dropdown if it's bigger than ddMaxHeight
+		_fix_height: function () {
+			var ikselect = this;
+			var block = ikselect.block;
+			var listInner = ikselect.listInner;
+			var ddMaxHeight = ikselect.options.ddMaxHeight;
+			var ddFullWidth = ikselect.options.ddFullWidth;
+
+			block.show();
+			listInner.css("height", "auto");
+
+			if (listInner.height() > ddMaxHeight) {
+				listInner.css({
+					overflow: "auto",
+					height: ddMaxHeight,
+					position: "relative"
+				});
+
+				if (! $.data(listInner, "ik_select_hasScrollbar")) {
+					if (ddFullWidth) {
+						block.width(block.width() + scrollbarWidth);
+						listInner.width(listInner.width() + scrollbarWidth);
+					}
+				}
+
+				$.data(listInner, "ik_select_hasScrollbar", true);
+			} else {
+				if ($.data(listInner, "ik_select_hasScrollbar")) {
+					listInner.css({
+						overflow: "",
+						height: "auto"
+					});
+					listInner.width(listInner.width() - scrollbarWidth);
+					block.width(block.width() - scrollbarWidth);
+				}
+			}
+			block.hide();
+		}
+	});
+
+	$.fn.ikSelect = function (options) {
+		//do nothing if opera mini
+		if ($.browser.operamini) {
+			return this;
+		}
+
+		var args = Array.prototype.slice.call(arguments);
+
+		return this.each(function () {
+			if (!$.data(this, "plugin_ikSelect")) {
+				$.data(this, "plugin_ikSelect", new IkSelect(this, options));
+			} else if (typeof options === "string") {
+				var ikselect = $.data(this, "plugin_ikSelect");
+				switch (options) {
+				case "reset":
+					ikselect.reset_all();
+					break;
+				case "hide_dropdown":
+					ikselect.hide_block();
+					break;
+				case "show_dropdown":
+					shownOnPurpose = true;
+					ikselect.select.focus();
+					ikselect.show_block();
+					break;
+				case "add_options":
+					ikselect.add_options(args[1]);
+					break;
+				case "remove_options":
+					ikselect.remove_options(args[1]);
+					break;
+				case "enable":
+					ikselect.enable_select();
+					break;
+				case "disable":
+					ikselect.disable_select();
+					break;
+				case "toggle":
+					ikselect.toggle_select();
+					break;
+				case "select":
+					ikselect.make_selection(args[1]);
+					break;
+				case "set_defaults":
+					ikselect.set_defaults(args[1]);
+					break;
+				case "redraw":
+					ikselect.redraw();
+					break;
+				case "disable_options":
+					ikselect.disable_options(args[1]);
+					break;
+				case "enable_options":
+					ikselect.enable_options(args[1]);
+					break;
+				case "disable_optgroups":
+					ikselect.disable_optgroups(args[1]);
+					break;
+				case "enable_optgroups":
+					ikselect.enable_optgroups(args[1]);
+					break;
+				case "detach":
+					ikselect.detach_plugin();
+					break;
+				}
+			}
+		});
+	};
+
+	// singleton instance
+	$.ikSelect = new IkSelect();
+
+	// hide fake select list when clicking outside of it
+	$(document).bind("click.ikSelect", function (event) {
+		if (! shownOnPurpose && selectOpened.length && ! $(event.target).closest(".ik_select").length && ! $(event.target).closest(".ik_select_block").length) {
+			selectOpened.ikSelect("hide_dropdown");
+			selectOpened = $([]);
+		}
+		if (shownOnPurpose) {
+			shownOnPurpose = false;
+		}
+	});
+})(jQuery, window, document);
+/* 
+	http://jamesflorentino.com/jquery.nanoscroller/
+*/
+/*
+(function(d,f,e){var g,h;h=function(){var c,a,b;a=e.createElement("div");a.style.position="absolute";a.style.width="100px";a.style.height="100px";a.style.overflow="scroll";e.body.appendChild(a);c=a.offsetWidth;b=a.scrollWidth;e.body.removeChild(a);return c-b};g=function(){function c(a){this.el=a;this.generate();this.createEvents();this.addEvents();this.reset()}c.prototype.createEvents=function(){var a=this;this.events={down:function(b){a.isDrag=!0;a.offsetY=b.clientY-a.slider.offset().top;a.pane.addClass("active");
+d(e).bind("mousemove",a.events.drag);d(e).bind("mouseup",a.events.up);return!1},drag:function(b){a.sliderY=b.clientY-a.el.offset().top-a.offsetY;a.scroll();return!1},up:function(){a.isDrag=!1;a.pane.removeClass("active");d(e).unbind("mousemove",a.events.drag);d(e).unbind("mouseup",a.events.up);return!1},resize:function(){a.reset()},panedown:function(b){a.sliderY=b.clientY-a.el.offset().top-0.5*a.sliderH;a.scroll();a.events.down(b)},scroll:function(){var b;!0!==a.isDrag&&(b=a.content[0],a.slider.css({top:b.scrollTop/
+(b.scrollHeight-b.clientHeight)*(a.paneH-a.sliderH)+"px"}))},wheel:function(b){a.sliderY+=-b.wheelDeltaY||-b.delta;a.scroll();return!1}}};c.prototype.addEvents=function(){var a,b;a=this.events;b=this.pane;d(f).bind("resize",a.resize);this.slider.bind("mousedown",a.down).bind("click",function(e){e.stopPropagation()});b.bind("mousedown",a.panedown);this.content.bind("scroll",a.scroll);f.addEventListener&&(b=b[0],b.addEventListener("mousewheel",a.wheel,!1),b.addEventListener("DOMMouseScroll",a.wheel,
+!1))};c.prototype.removeEvents=function(){var a,b;a=this.events;b=this.pane;d(f).unbind("resize",a.resize);this.slider.unbind("mousedown",a.down);b.unbind("mousedown",a.panedown);this.content.unbind("scroll",a.scroll);f.addEventListener&&(b=b[0],b.removeEventListener("mousewheel",a.wheel,!1),b.removeEventListener("DOMMouseScroll",a.wheel,!1))};c.prototype.generate=function(){this.el.append('<div class="pane"><div class="slider"></div></div>');this.content=d(this.el.children(".content")[0]);this.slider=
+this.el.find(".slider");this.pane=this.el.find(".pane");this.scrollW=h();0===this.scrollbarWidth&&(this.scrollW=0);this.content.css({right:-this.scrollW+"px"})};c.prototype.reset=function(){var a;0===this.el.find(".pane").length&&(this.generate(),this.stop());!0===this.isDead&&(this.isDead=!1,this.pane.show(),this.addEvents());a=this.content[0];this.contentH=a.scrollHeight+this.scrollW;this.paneH=this.pane.outerHeight();this.sliderH=this.paneH/this.contentH*this.paneH;this.sliderH=Math.round(this.sliderH);
+this.scrollH=this.paneH-this.sliderH;this.slider.height(this.sliderH);this.diffH=a.scrollHeight-a.clientHeight;this.pane.show();this.paneH>=this.content[0].scrollHeight&&this.pane.hide()};c.prototype.scroll=function(){var a;this.sliderY=Math.max(0,this.sliderY);this.sliderY=Math.min(this.scrollH,this.sliderY);a=this.paneH-this.contentH+this.scrollW;a=a*this.sliderY/this.scrollH;this.content.scrollTop(-a);return this.slider.css({top:this.sliderY})};c.prototype.scrollBottom=function(a){var b,c;b=this.diffH;
+c=this.content[0].scrollTop;this.reset();c<b&&0!==c||this.content.scrollTop(this.contentH-this.content.height()-a)};c.prototype.scrollTop=function(a){this.reset();this.content.scrollTop(+a)};c.prototype.stop=function(){this.isDead=!0;this.removeEvents();this.pane.hide()};return c}();d.fn.nanoScroller=function(c){c||(c={});d.browser.msie&&8>parseInt(d.browser.version,10)||this.each(function(){var a,b;a=d(this);b=a.data("scrollbar");void 0===b&&(b=new g(a),a.data("scrollbar",b));return c.scrollBottom?
+b.scrollBottom(c.scrollBottom):c.scrollTop?b.scrollTop(c.scrollTop):"bottom"===c.scroll?b.scrollBottom(0):"top"===c.scroll?b.scrollTop(0):c.stop?b.stop():b.reset()})}})(jQuery,window,document);
+*/
+
+
+
+/*! nanoScrollerJS - v0.7.2 - horizontal scrolling fix
+* http://jamesflorentino.github.com/nanoScrollerJS/
+* Copyright (c) 2013 James Florentino; Licensed MIT */
+(function($, window, document) {
+  "use strict";
+
+  var BROWSER_IS_IE7, BROWSER_SCROLLBAR_HEIGHT, BROWSER_SCROLLBAR_WIDTH, DOMSCROLL, DOWN, DRAG, KEYDOWN, KEYUP, LEFT, MOUSEDOWN, MOUSEMOVE, MOUSEUP, MOUSEWHEEL, NanoScroll, PANEDOWN, PANERIGHT, RESIZE, RIGHT, SCROLL, SCROLLBAR, TOUCHMOVE, UP, WHEEL, defaults, getBrowserScrollbarSizes;
+  defaults = {
+    /**
+      a classname for the pane element.
+      @property paneClass
+      @type String
+      @default 'pane'
+    */
+
+    paneClass: 'pane',
+    /**
+      a classname for the pane-y element.
+      @property paneClassY
+      @type String
+      @default 'pane-y'
+    */
+
+    paneClassY: 'pane-y',
+    /**
+      a classname for the pane-x element.
+      @property paneClassX
+      @type String
+      @default 'pane-x'
+    */
+
+    paneClassX: 'pane-x',
+    /**
+      a classname for the slider element.
+      @property sliderClass
+      @type String
+      @default 'slider'
+    */
+
+    sliderClass: 'slider',
+    /**
+      a classname for the slider-y element.
+      @property sliderClassY
+      @type String
+      @default 'slider-y'
+    */
+
+    sliderClassY: 'slider-y',
+    /**
+      a classname for the slider-x element.
+      @property sliderClassX
+      @type String
+      @default 'slider-x'
+    */
+
+    sliderClassX: 'slider-x',
+    /**
+      a classname for the content element.
+      @property contentClass
+      @type String
+      @default 'content'
+    */
+
+    contentClass: 'nanocontent',
+    /**
+      a setting to enable native scrolling in iOS devices.
+      @property iOSNativeScrolling
+      @type Boolean
+      @default false
+    */
+
+    iOSNativeScrolling: false,
+    /**
+      a setting to prevent the rest of the page being
+      scrolled when user scrolls the `.content` element.
+      @property preventPageScrolling
+      @type Boolean
+      @default false
+    */
+
+    preventPageScrolling: false,
+    /**
+      a setting to disable binding to the resize event.
+      @property disableResize
+      @type Boolean
+      @default false
+    */
+
+    disableResize: false,
+    /**
+      a setting to make the scrollbar always visible.
+      @property alwaysVisible
+      @type Boolean
+      @default false
+    */
+
+    alwaysVisible: false,
+    /**
+      a default timeout for the `flash()` method.
+      @property flashDelay
+      @type Number
+      @default 1500
+    */
+
+    flashDelay: 1500,
+    /**
+      a minimum height for the `.slider` element.
+      @property sliderMinHeight
+      @type Number
+      @default 20
+    */
+
+    sliderMinHeight: 20,
+    /**
+      a maximum height for the `.slider` element.
+      @property sliderMaxHeight
+      @type Number
+      @default null
+    */
+
+    sliderMaxHeight: null
+  };
+  /**
+    @property SCROLLBAR
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  SCROLLBAR = 'scrollbar';
+  /**
+    @property SCROLL
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  SCROLL = 'scroll';
+  /**
+    @property MOUSEDOWN
+    @type String
+    @final
+    @private
+  */
+
+  MOUSEDOWN = 'mousedown';
+  /**
+    @property MOUSEMOVE
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  MOUSEMOVE = 'mousemove';
+  /**
+    @property MOUSEWHEEL
+    @type String
+    @final
+    @private
+  */
+
+  MOUSEWHEEL = 'mousewheel';
+  /**
+    @property MOUSEUP
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  MOUSEUP = 'mouseup';
+  /**
+    @property RESIZE
+    @type String
+    @final
+    @private
+  */
+
+  RESIZE = 'resize';
+  /**
+    @property DRAG
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  DRAG = 'drag';
+  /**
+    @property UP
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  UP = 'up';
+  /**
+    @property PANEDOWN
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  PANEDOWN = 'panedown';
+  /**
+    @property LEFT
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  LEFT = 'left';
+  /**
+    @property PANERIGHT
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  PANERIGHT = 'paneright';
+  /**
+    @property DOMSCROLL
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  DOMSCROLL = 'DOMMouseScroll';
+  /**
+    @property DOWN
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  DOWN = 'down';
+  /**
+    @property RIGHT
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  RIGHT = 'right';
+  /**
+    @property WHEEL
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  WHEEL = 'wheel';
+  /**
+    @property KEYDOWN
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  KEYDOWN = 'keydown';
+  /**
+    @property KEYUP
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  KEYUP = 'keyup';
+  /**
+    @property TOUCHMOVE
+    @type String
+    @static
+    @final
+    @private
+  */
+
+  TOUCHMOVE = 'touchmove';
+  /**
+    @property BROWSER_IS_IE7
+    @type Boolean
+    @static
+    @final
+    @private
+  */
+
+  BROWSER_IS_IE7 = window.navigator.appName === 'Microsoft Internet Explorer' && /msie 7./i.test(window.navigator.appVersion) && window.ActiveXObject;
+  /**
+    @property BROWSER_SCROLLBAR_WIDTH
+    @type Number
+    @static
+    @default null
+    @private
+  */
+
+  BROWSER_SCROLLBAR_WIDTH = null;
+  /**
+    @property BROWSER_SCROLLBAR_HEIGHT
+    @type Number
+    @static
+    @default null
+    @private
+  */
+
+  BROWSER_SCROLLBAR_HEIGHT = null;
+  /**
+    Returns browser's native scrollbar width
+    @method getBrowserScrollbarSizes
+    @return {Number} the scrollbar width in pixels
+    @static
+    @private
+  */
+
+  getBrowserScrollbarSizes = function() {
+    var outer, outerStyle, scrollbarHeight, scrollbarWidth;
+    outer = document.createElement('div');
+    outerStyle = outer.style;
+    outerStyle.position = 'absolute';
+    outerStyle.width = '100px';
+    outerStyle.height = '100px';
+    outerStyle.overflow = SCROLL;
+    outerStyle.top = '-9999px';
+    document.body.appendChild(outer);
+    scrollbarWidth = outer.offsetWidth - outer.clientWidth;
+    scrollbarHeight = outer.offsetHeight - outer.clientHeight;
+    document.body.removeChild(outer);
+    return [scrollbarWidth, scrollbarHeight];
+  };
+  /**
+    @class NanoScroll
+    @param element {HTMLElement|Node} the main element
+    @param options {Object} nanoScroller's options
+    @constructor
+  */
+
+  NanoScroll = (function() {
+
+    function NanoScroll(el, options) {
+      var _ref;
+      this.el = el;
+      this.options = options;
+      if (!BROWSER_SCROLLBAR_WIDTH || !BROWSER_SCROLLBAR_HEIGHT) {
+        _ref = getBrowserScrollbarSizes(), BROWSER_SCROLLBAR_WIDTH = _ref[0], BROWSER_SCROLLBAR_HEIGHT = _ref[1];
+      }
+      this.$el = $(this.el);
+      this.doc = $(document);
+      this.win = $(window);
+      this.$content = this.$el.children("." + options.contentClass);
+      this.$content.attr('tabindex', 0);
+      this.content = this.$content[0];
+      if (this.options.iOSNativeScrolling && (this.el.style.WebkitOverflowScrolling != null)) {
+        this.nativeScrolling();
+      } else {
+        this.generate();
+      }
+      this.createEvents();
+      this.addEvents();
+      this.reset();
+    }
+
+    /**
+      Prevents the rest of the page being scrolled
+      when user scrolls the `.content` element.
+      @method preventVerticalScrolling
+      @param event {Event}
+      @param direction {String} Scroll direction (up or down)
+      @private
+    */
+
+
+    NanoScroll.prototype.preventVerticalScrolling = function(e, direction) {
+      if (!this.isActiveY) {
+        return;
+      }
+      return;
+      if (e.type === DOMSCROLL) {
+        if (direction === DOWN && e.originalEvent.detail > 0 || direction === UP && e.originalEvent.detail < 0) {
+          e.preventDefault();
+        }
+      } else if (e.type === MOUSEWHEEL) {
+        if (!e.originalEvent || !e.originalEvent.wheelDelta) {
+          return;
+        }
+        if (direction === DOWN && e.originalEvent.wheelDelta < 0 || direction === UP && e.originalEvent.wheelDelta > 0) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    /**
+      Prevents the rest of the page being scrolled
+      when user scrolls the `.content` element.
+      @method preventHorizontalScrolling
+      @param event {Event}
+      @param direction {String} Scroll direction (left or right)
+      @private
+    */
+
+
+    NanoScroll.prototype.preventHorizontalScrolling = function(e, direction) {
+      if (!this.isActiveX) {
+        return;
+      }
+      return;
+      if (e.type === DOMSCROLL) {
+        if (direction === RIGHT && e.originalEvent.detail > 0 || direction === LEFT && e.originalEvent.detail < 0) {
+          e.preventDefault();
+        }
+      } else if (e.type === MOUSEWHEEL) {
+        if (!e.originalEvent || !e.originalEvent.wheelDelta) {
+          return;
+        }
+        if (direction === RIGHT && e.originalEvent.wheelDelta < 0 || direction === LEFT && e.originalEvent.wheelDelta > 0) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    /**
+      Enable iOS native scrolling
+    */
+
+
+    NanoScroll.prototype.nativeScrolling = function() {
+      this.$content.css({
+        WebkitOverflowScrolling: 'touch'
+      });
+      this.iOSNativeScrolling = true;
+      this.isActiveX = true;
+      this.isActiveY = true;
+    };
+
+    /**
+      Updates those nanoScroller properties that
+      are related to current scrollbar position.
+      @method updateVerticalScrollValues
+      @private
+    */
+
+
+    NanoScroll.prototype.updateVerticalScrollValues = function() {
+      var content;
+      content = this.content;
+      this.maxScrollTop = content.scrollHeight - content.clientHeight;
+      this.contentScrollTop = content.scrollTop;
+      if (!this.iOSNativeScrolling) {
+        this.maxSliderTop = this.yPaneHeight - this.ySliderHeight;
+        this.ySliderTop = this.contentScrollTop * this.maxSliderTop / this.maxScrollTop;
+      }
+    };
+
+    /**
+      Updates those nanoScroller properties that
+      are related to current scrollbar position.
+      @method updateVerticalScrollValues
+      @private
+    */
+
+
+    NanoScroll.prototype.updateHorizontalScrollValues = function() {
+      var content;
+      content = this.content;
+      this.maxScrollLeft = content.scrollWidth - content.clientWidth;
+      this.contentScrollLeft = content.scrollLeft;
+      if (!this.iOSNativeScrolling) {
+        this.maxSliderLeft = this.xPaneWidth - this.xSliderWidth;
+        this.xSliderLeft = this.contentScrollLeft * this.maxSliderLeft / this.maxScrollLeft;
+      }
+    };
+
+    /**
+      Creates event related methods
+      @method createEvents
+      @private
+    */
+
+
+    NanoScroll.prototype.createEvents = function() {
+      var _this = this;
+      this.yEvents = {
+        down: function(e) {
+          _this.isYBeingDragged = true;
+          _this.offsetY = e.pageY - _this.ySlider.offset().top;
+          _this.yPane.addClass('active');
+          _this.doc.bind(MOUSEMOVE, _this.yEvents[DRAG]).bind(MOUSEUP, _this.yEvents[UP]);
+          return false;
+        },
+        drag: function(e) {
+          _this.ySliderY = e.pageY - _this.$el.offset().top - _this.offsetY;
+          _this.scrollY();
+          _this.updateVerticalScrollValues();
+          if (_this.contentScrollTop >= _this.maxScrollTop) {
+            _this.$el.trigger('scrollend');
+          } else if (_this.contentScrollTop === 0) {
+            _this.$el.trigger('scrolltop');
+          }
+          return false;
+        },
+        up: function(e) {
+          _this.isYBeingDragged = false;
+          _this.yPane.removeClass('active');
+          _this.doc.unbind(MOUSEMOVE, _this.yEvents[DRAG]).unbind(MOUSEUP, _this.yEvents[UP]);
+          return false;
+        },
+        resize: function(e) {
+          _this.reset();
+        },
+        panedown: function(e) {
+          _this.ySliderY = (e.offsetY || e.originalEvent.layerY) - (_this.ySliderHeight * 0.5);
+          _this.scrollY();
+          _this.yEvents.down(e);
+          return false;
+        },
+        scroll: function(e) {
+          if (_this.isYBeingDragged) {
+            return;
+          }
+          _this.updateVerticalScrollValues();
+          if (!_this.iOSNativeScrolling) {
+            _this.ySliderY = _this.ySliderTop;
+            _this.ySlider.css({
+              top: _this.ySliderTop
+            });
+          }
+          if (e == null) {
+            return;
+          }
+          if (_this.contentScrollTop >= _this.maxScrollTop) {
+            if (_this.options.preventPageScrolling) {
+              _this.preventVerticalScrolling(e, DOWN);
+            }
+            _this.$el.trigger('scrollend');
+          } else if (_this.contentScrollTop === 0) {
+            if (_this.options.preventPageScrolling) {
+              _this.preventVerticalScrolling(e, UP);
+            }
+            _this.$el.trigger('scrolltop');
+          }
+        },
+        wheel: function(e) {
+          if (e == null) {
+            return;
+          }
+          _this.ySliderY += -e.wheelDeltaY || -e.delta;
+          _this.scrollY();
+          return false;
+        }
+      };
+      this.xEvents = {
+        down: function(e) {
+          _this.isXBeingDragged = true;
+          _this.offsetX = e.pageX - _this.xSlider.offset().left;
+          _this.xPane.addClass('active');
+          _this.doc.bind(MOUSEMOVE, _this.xEvents[DRAG]).bind(MOUSEUP, _this.xEvents[UP]);
+          return false;
+        },
+        drag: function(e) {
+          _this.xSliderX = e.pageX - _this.$el.offset().left - _this.offsetX;
+          _this.scrollX();
+          _this.updateHorizontalScrollValues();
+          if (_this.contentScrollLeft >= _this.maxScrollLeft) {
+            _this.$el.trigger('scrollend');
+          } else if (_this.contentScrollLeft === 0) {
+            _this.$el.trigger('scrollleft');
+          }
+          return false;
+        },
+        up: function(e) {
+          _this.isXBeingDragged = false;
+          _this.xPane.removeClass('active');
+          _this.doc.unbind(MOUSEMOVE, _this.xEvents[DRAG]).unbind(MOUSEUP, _this.xEvents[UP]);
+          return false;
+        },
+        resize: function(e) {
+          _this.reset();
+        },
+        panedown: function(e) {
+          _this.xSliderX = (e.offsetX || e.originalEvent.layerX) - (_this.xSliderWidth * 0.5);
+          _this.scrollX();
+          _this.xEvents.down(e);
+          return false;
+        },
+        scroll: function(e) {
+          if (_this.isXBeingDragged) {
+            return;
+          }
+          _this.updateHorizontalScrollValues();
+          if (!_this.iOSNativeScrolling) {
+            _this.xSliderX = _this.xSliderLeft;
+            _this.xSlider.css({
+              left: _this.xSliderLeft
+            });
+          }
+          if (e == null) {
+            return;
+          }
+          if (_this.contentScrollLeft >= _this.maxScrollLeft) {
+            if (_this.options.preventPageScrolling) {
+              _this.preventHorizontalScrolling(e, RIGHT);
+            }
+            _this.$el.trigger('scrollend');
+          } else if (_this.contentScrollLeft === 0) {
+            if (_this.options.preventPageScrolling) {
+              _this.preventHorizontalScrolling(e, LEFT);
+            }
+            _this.$el.trigger('scrollleft');
+          }
+        },
+        wheel: function(e) {
+          if (e == null) {
+            return;
+          }
+          _this.xSliderX += -e.wheelDeltaX || -e.delta;
+          _this.scrollX();
+          return false;
+        }
+      };
+    };
+
+    /**
+      Adds event listeners with jQuery.
+      @method addEvents
+      @private
+    */
+
+
+    NanoScroll.prototype.addEvents = function() {
+      var xEvents, yEvents;
+      this.removeEvents();
+      yEvents = this.yEvents;
+      xEvents = this.xEvents;
+      if (!this.options.disableResize) {
+        this.win.bind(RESIZE, yEvents[RESIZE].bind(RESIZE, xEvents[RESIZE]));
+      }
+      if (!this.iOSNativeScrolling) {
+        this.ySlider.bind(MOUSEDOWN, yEvents[DOWN]);
+        this.xSlider.bind(MOUSEDOWN, xEvents[DOWN]);
+        this.yPane.bind(MOUSEDOWN, yEvents[PANEDOWN]).bind("" + MOUSEWHEEL + " " + DOMSCROLL, yEvents[WHEEL]);
+        this.xPane.bind(MOUSEDOWN, xEvents[PANEDOWN]).bind("" + MOUSEWHEEL + " " + DOMSCROLL, xEvents[WHEEL]);
+      }
+      this.$content.bind("" + SCROLL + " " + MOUSEWHEEL + " " + DOMSCROLL + " " + TOUCHMOVE, yEvents[SCROLL]).bind("" + SCROLL + " " + MOUSEWHEEL + " " + DOMSCROLL + " " + TOUCHMOVE, xEvents[SCROLL]);
+    };
+
+    /**
+      Removes event listeners with jQuery.
+      @method removeEvents
+      @private
+    */
+
+
+    NanoScroll.prototype.removeEvents = function() {
+      var xEvents, yEvents;
+      yEvents = this.yEvents;
+      xEvents = this.xEvents;
+      this.win.unbind(RESIZE, yEvents[RESIZE]).unbind(RESIZE, xEvents[RESIZE]);
+      if (!this.iOSNativeScrolling) {
+        this.ySlider.unbind();
+        this.xSlider.unbind();
+        this.yPane.unbind();
+        this.xPane.unbind();
+      }
+      this.$content.unbind("" + SCROLL + " " + MOUSEWHEEL + " " + DOMSCROLL + " " + TOUCHMOVE, yEvents[SCROLL]).unbind("" + SCROLL + " " + MOUSEWHEEL + " " + DOMSCROLL + " " + TOUCHMOVE, xEvents[SCROLL]);
+    };
+
+    /**
+      Generates nanoScroller's scrollbar and elements for it.
+      @method generate
+      @chainable
+      @private
+    */
+
+
+    NanoScroll.prototype.generate = function() {
+      var contentClass, cssRuleX, cssRuleY, options, paneClass, paneClassX, paneClassY, sliderClass, sliderClassX, sliderClassY;
+      options = this.options;
+      paneClass = options.paneClass, paneClassY = options.paneClassY, paneClassX = options.paneClassX, sliderClass = options.sliderClass, sliderClassY = options.sliderClassY, sliderClassX = options.sliderClassX, contentClass = options.contentClass;
+      if (!this.$el.find("" + paneClassY).length && !this.$el.find("" + sliderClassY).length) {
+        this.$el.append("<div class=\"" + paneClass + " " + paneClassY + "\"><div class=\"" + sliderClass + " " + sliderClassY + "\" /></div>");
+      }
+      if (!this.$el.find("" + paneClassX).length && !this.$el.find("" + sliderClassX).length) {
+        this.$el.append("<div class=\"" + paneClass + " " + paneClassX + "\"><div class=\"" + sliderClass + " " + sliderClassX + "\" /></div>");
+      }
+      this.yPane = this.$el.children("." + paneClassY);
+      this.xPane = this.$el.children("." + paneClassX);
+      this.ySlider = this.yPane.find("." + sliderClassY);
+      this.xSlider = this.xPane.find("." + sliderClassX);
+      if (BROWSER_SCROLLBAR_WIDTH) {
+        cssRuleY = this.$el.css('direction') === 'rtl' ? {
+          left: -BROWSER_SCROLLBAR_WIDTH
+        } : {
+          right: -BROWSER_SCROLLBAR_WIDTH
+        };
+        this.$el.addClass('has-scrollbar');
+        this.$content.css(cssRuleY);
+      }
+      if (BROWSER_SCROLLBAR_HEIGHT) {
+        cssRuleX = {
+          bottom: -BROWSER_SCROLLBAR_HEIGHT
+        };
+        this.$el.addClass('has-scrollbar');
+        this.$content.css(cssRuleX);
+      }
+      return this;
+    };
+
+    /**
+      @method restore
+      @private
+    */
+
+
+    NanoScroll.prototype.restore = function() {
+      this.stopped = false;
+      this.yPane.show();
+      this.xPane.show();
+      this.addEvents();
+    };
+
+    /**
+      Resets nanoScroller's scrollbar.
+      @method reset
+      @chainable
+      @example
+          $(".nano").nanoScroller();
+    */
+
+
+    NanoScroll.prototype.reset = function() {
+      var content, contentHeight, contentStyle, contentStyleOverflowX, contentStyleOverflowY, contentWidth, paneBottom, paneHeight, paneLeft, paneOuterHeight, paneOuterWidth, paneRight, paneTop, paneWidth, sliderHeight, sliderWidth;
+      if (this.iOSNativeScrolling) {
+        this.contentHeight = this.content.scrollHeight;
+        this.contentWidth = this.content.scrollWidth;
+        return;
+      }
+      this.$el.removeClass('has-scrollbar-x');
+      this.$el.removeClass('has-scrollbar-y');
+      if (!this.$el.find("." + this.options.paneClassY).length && !this.$el.find("." + this.options.paneClassX).length) {
+        this.generate().stop();
+      }
+      if (this.stopped) {
+        this.restore();
+      }
+      content = this.content;
+      contentStyle = content.style;
+      contentStyleOverflowY = contentStyle.overflowY;
+      contentStyleOverflowX = contentStyle.overflowX;
+      if (BROWSER_IS_IE7) {
+        this.$content.css({
+          height: this.$content.height(),
+          width: this.$content.height()
+        });
+      }
+      contentHeight = content.scrollHeight + BROWSER_SCROLLBAR_WIDTH;
+      contentWidth = content.scrollWidth + BROWSER_SCROLLBAR_HEIGHT;
+      if (content.scrollWidth > this.xPane.outerWidth(true)) {
+        this.$el.addClass('has-scrollbar-x');
+      }
+      if (content.scrollHeight > this.yPane.outerHeight(true)) {
+        this.$el.addClass('has-scrollbar-y');
+      }
+      paneHeight = this.yPane.outerHeight();
+      paneTop = parseInt(this.yPane.css('top'), 10);
+      paneBottom = parseInt(this.yPane.css('bottom'), 10);
+      paneOuterHeight = paneHeight + paneTop + paneBottom;
+      paneWidth = this.xPane.outerWidth();
+      paneLeft = parseInt(this.xPane.css('left'), 10);
+      paneRight = parseInt(this.xPane.css('right'), 10);
+      paneOuterWidth = paneWidth + paneLeft + paneRight;
+      sliderHeight = Math.round(paneOuterHeight / contentHeight * paneOuterHeight);
+      if (sliderHeight < this.options.sliderMinHeight) {
+        sliderHeight = this.options.sliderMinHeight;
+      } else if ((this.options.sliderMaxHeight != null) && sliderHeight > this.options.sliderMaxHeight) {
+        sliderHeight = this.options.sliderMaxHeight;
+      }
+      if (contentStyleOverflowY === SCROLL && contentStyle.overflowX !== SCROLL) {
+        sliderHeight += BROWSER_SCROLLBAR_WIDTH;
+      }
+      sliderWidth = Math.round(paneOuterWidth / contentWidth * paneOuterWidth);
+      if (sliderWidth < this.options.sliderMinWidth) {
+        sliderWidth = this.options.sliderMinWidth;
+      } else if ((this.options.sliderMaxWidth != null) && sliderWidth > this.options.sliderMaxWidth) {
+        sliderWidth = this.options.sliderMaxWidth;
+      }
+      if (contentStyleOverflowX === SCROLL && contentStyle.overflowY !== SCROLL) {
+        sliderWidth += BROWSER_SCROLLBAR_HEIGHT;
+      }
+      this.maxSliderTop = paneOuterHeight - sliderHeight;
+      this.maxSliderLeft = paneOuterWidth - sliderWidth;
+      this.contentHeight = contentHeight;
+      this.contentWidth = contentWidth;
+      this.yPaneHeight = paneHeight;
+      this.xPaneWidth = paneWidth;
+      this.yPaneOuterHeight = paneOuterHeight;
+      this.xPaneOuterWidth = paneOuterWidth;
+      this.ySliderHeight = sliderHeight;
+      this.xSliderWidth = sliderWidth;
+      this.ySlider.height(sliderHeight);
+      this.xSlider.width(sliderWidth);
+      this.yEvents.scroll();
+      this.xEvents.scroll();
+      this.yPane.show();
+      this.isActiveY = true;
+      if ((content.scrollHeight === content.clientHeight) || (this.yPane.outerHeight(true) >= content.scrollHeight && contentStyleOverflowY !== SCROLL)) {
+        this.yPane.hide();
+        this.$el.removeClass('has-scrollbar-y');
+        this.isActiveY = false;
+      } else if (this.el.clientHeight === content.scrollHeight && contentStyleOverflowY === SCROLL) {
+        this.ySlider.hide();
+      } else {
+        this.ySlider.show();
+      }
+      this.xPane.show();
+      this.isActiveX = true;
+      if ((content.scrollWidth === content.clientWidth) || (this.xPane.outerWidth(true) >= content.scrollWidth && contentStyleOverflowX !== SCROLL)) {
+        this.xPane.hide();
+        this.$el.removeClass('has-scrollbar-x');
+        this.isActiveX = false;
+      } else if (this.el.clientWidth === content.scrollWidth && contentStyleOverflowX === SCROLL) {
+        this.xSlider.hide();
+      } else {
+        this.xSlider.show();
+      }
+      this.yPane.css({
+        opacity: (this.options.alwaysVisible ? 1 : ''),
+        visibility: (this.options.alwaysVisible ? 'visible' : '')
+      });
+      this.xPane.css({
+        opacity: (this.options.alwaysVisible ? 1 : ''),
+        visibility: (this.options.alwaysVisible ? 'visible' : '')
+      });
+      return this;
+    };
+
+    /**
+      @method scroll
+      @private
+      @example
+          $(".nano").nanoScroller({ scroll: 'top' });
+    */
+
+
+    NanoScroll.prototype.scroll = function() {
+      return this.scrollY();
+    };
+
+    /**
+      @method scrollY
+      @private
+      @example
+          $(".nano").nanoScroller({ scrollY: 'top' });
+    */
+
+
+    NanoScroll.prototype.scrollY = function() {
+      if (!this.isActiveY) {
+        return;
+      }
+      this.ySliderY = Math.max(0, this.ySliderY);
+      this.ySliderY = Math.min(this.maxSliderTop, this.ySliderY);
+      this.$content.scrollTop((this.yPaneHeight - this.contentHeight + BROWSER_SCROLLBAR_WIDTH) * this.ySliderY / this.maxSliderTop * -1);
+      if (!this.iOSNativeScrolling) {
+        this.ySlider.css({
+          top: this.ySliderY
+        });
+      }
+      return this;
+    };
+
+    /**
+      @method scrollX
+      @private
+      @example
+          $(".nano").nanoScroller({ scrollX: 'top' });
+    */
+
+
+    NanoScroll.prototype.scrollX = function() {
+      if (!this.isActiveX) {
+        return;
+      }
+      this.xSliderX = Math.max(0, this.xSliderX);
+      this.xSliderX = Math.min(this.maxSliderLeft, this.xSliderX);
+      this.$content.scrollLeft((this.xPaneWidth - this.contentWidth + BROWSER_SCROLLBAR_HEIGHT) * this.xSliderX / this.maxSliderLeft * -1);
+      if (!this.iOSNativeScrolling) {
+        this.xSlider.css({
+          left: this.xSliderX
+        });
+      }
+      return this;
+    };
+
+    /**
+      Scroll at the bottom with an offset value
+      @method scrollBottom
+      @param offsetY {Number}
+      @chainable
+      @example
+          $(".nano").nanoScroller({ scrollBottom: value });
+    */
+
+
+    NanoScroll.prototype.scrollBottom = function(offsetY) {
+      if (!this.isActiveY) {
+        return;
+      }
+      this.reset();
+      this.$content.scrollTop(this.contentHeight - this.$content.height() - offsetY).trigger(MOUSEWHEEL);
+      return this;
+    };
+
+    /**
+      Scroll at the right with an offset value
+      @method scrollRight
+      @param offsetX {Number}
+      @chainable
+      @example
+          $(".nano").nanoScroller({ scrollRight: value });
+    */
+
+
+    NanoScroll.prototype.scrollRight = function(offsetX) {
+      if (!this.isActiveX) {
+        return;
+      }
+      this.reset();
+      this.$content.scrollLeft(this.contentWidth - this.$content.width() - offsetX).trigger(MOUSEWHEEL);
+      return this;
+    };
+
+    /**
+      Scroll at the top with an offset value
+      @method scrollTop
+      @param offsetY {Number}
+      @chainable
+      @example
+          $(".nano").nanoScroller({ scrollTop: value });
+    */
+
+
+    NanoScroll.prototype.scrollTop = function(offsetY) {
+      if (!this.isActiveY) {
+        return;
+      }
+      this.reset();
+      this.$content.scrollTop(+offsetY).trigger(MOUSEWHEEL);
+      return this;
+    };
+
+    /**
+      Scroll at the left with an offset value
+      @method scrollLeft
+      @param offsetX {Number}
+      @chainable
+      @example
+          $(".nano").nanoScroller({ scrollLeft: value });
+    */
+
+
+    NanoScroll.prototype.scrollLeft = function(offsetX) {
+      if (!this.isActiveX) {
+        return;
+      }
+      this.reset();
+      this.$content.scrollLeft(+offsetX).trigger(MOUSEWHEEL);
+      return this;
+    };
+
+    /**
+      Scroll to an element
+      @method scrollTo
+      @param node {Node} A node to scroll to.
+      @chainable
+      @example
+          $(".nano").nanoScroller({ scrollTo: $('#a_node') });
+    */
+
+
+    NanoScroll.prototype.scrollTo = function(node) {
+      var n;
+      if (!(this.isActiveY || this.isActiveX)) {
+        return;
+      }
+      this.reset();
+      n = $(node).get(0);
+      if (this.isActiveY) {
+        this.scrollTop(n.offsetTop);
+      }
+      if (this.isActiveX) {
+        this.scrollLeft(n.offsetLeft);
+      }
+      return this;
+    };
+
+    /**
+      To stop the operation.
+      This option will tell the plugin to disable all event bindings and hide the gadget scrollbar from the UI.
+      @method stop
+      @chainable
+      @example
+          $(".nano").nanoScroller({ stop: true });
+    */
+
+
+    NanoScroll.prototype.stop = function() {
+      this.stopped = true;
+      this.removeEvents();
+      this.yPane.hide();
+      this.xPane.hide();
+      return this;
+    };
+
+    /**
+      To flash the scrollbar gadget for an amount of time defined in plugin settings (defaults to 1,5s).
+      Useful if you want to show the user (e.g. on pageload) that there is more content waiting for him.
+      @method flash
+      @chainable
+      @example
+          $(".nano").nanoScroller({ flash: true });
+    */
+
+
+    NanoScroll.prototype.flash = function() {
+      var _this = this;
+      if (!(this.isActiveY || this.isActiveX)) {
+        return;
+      }
+      this.reset();
+      if (this.isActiveY) {
+        this.yPane.addClass('flashed');
+      }
+      if (this.isActiveX) {
+        this.xPane.addClass('flashed');
+      }
+      setTimeout(function() {
+        if (_this.isActiveY) {
+          _this.yPane.removeClass('flashed');
+        }
+        if (_this.isActiveX) {
+          _this.xPane.removeClass('flashed');
+        }
+      }, this.options.flashDelay);
+      return this;
+    };
+
+    return NanoScroll;
+
+  })();
+  $.fn.nanoScroller = function(settings) {
+    return this.each(function() {
+      var options, scrollbar;
+      if (!(scrollbar = this.nanoscroller)) {
+        if (settings && settings.paneClass) {
+          if (!settings.paneClassX) {
+            settings.paneClassX = "" + settings.paneClass + "-x";
+          }
+          if (!settings.paneClassY) {
+            settings.paneClassY = "" + settings.paneClass + "-y";
+          }
+        }
+        if (settings && settings.sliderClass) {
+          if (!settings.sliderClassX) {
+            settings.sliderClassX = "" + settings.sliderClass + "-x";
+          }
+          if (!settings.sliderClassY) {
+            settings.sliderClassY = "" + settings.sliderClass + "-y";
+          }
+        }
+        options = $.extend({}, defaults, settings);
+        this.nanoscroller = scrollbar = new NanoScroll(this, options);
+      }
+      if (settings && typeof settings === "object") {
+        $.extend(scrollbar.options, settings);
+        if (settings.scrollBottom) {
+          return scrollbar.scrollBottom(settings.scrollBottom);
+        }
+        if (settings.scrollTop) {
+          return scrollbar.scrollTop(settings.scrollTop);
+        }
+        if (settings.scrollRight) {
+          return scrollbar.scrollRight(settings.scrollRight);
+        }
+        if (settings.scrollLeft) {
+          return scrollbar.scrollLeft(settings.scrollLeft);
+        }
+        if (settings.scrollTo) {
+          return scrollbar.scrollTo(settings.scrollTo);
+        }
+        if (settings.scroll === 'bottom') {
+          return scrollbar.scrollBottom(0);
+        }
+        if (settings.scroll === 'top') {
+          return scrollbar.scrollTop(0);
+        }
+        if (settings.scroll === 'right') {
+          return scrollbar.scrollRight(0);
+        }
+        if (settings.scroll === 'left') {
+          return scrollbar.scrollLeft(0);
+        }
+        if (settings.scroll && settings.scroll instanceof $) {
+          return scrollbar.scrollTo(settings.scroll);
+        }
+        if (settings.stop) {
+          return scrollbar.stop();
+        }
+        if (settings.flash) {
+          return scrollbar.flash();
+        }
+      }
+      return scrollbar.reset();
+    });
+  };
+})(jQuery, window, document);
+

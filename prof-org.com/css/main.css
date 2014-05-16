@@ -112,6 +112,429 @@ border-radius: 3px;
 
 
 
+
+/* ==========================================================================
+	 ikSelect
+	 ========================================================================== */
+
+
+
+.event-admin .brands-list select{
+	visibility: hidden;
+}
+
+.ik_select {
+	position: relative;
+	height: 53px;
+	line-height: 53px;
+	display: inline-block; *display:inline;
+	zoom: 1;
+	vertical-align: middle;
+	font-size: 18px;
+}
+
+.big-input .ik_select {
+	height: 60px;
+	line-height: 60px;
+}
+
+.w100 .ik_select_link{
+	width: 58px;
+}
+.w120 .ik_select_link{
+	width: 78px;
+}
+.w160 .ik_select_link{
+	width: 118px;
+}
+.w280 .ik_select_link{
+	width: 238px;
+}
+.w370 .ik_select_link{
+	width: 328px;
+}
+.w440 .ik_select_link{
+	width: 398px;
+}
+.w580 .ik_select_link{
+	width: 538px;
+}
+.w760 .ik_select_link{
+	width: 718px;
+}
+
+.ik_select_link_wrap{
+	position: relative;
+}
+
+.ik_select_link{
+	text-align: left;
+	border-radius: 3px;
+	padding: 1px 24px 1px 14px;
+	height: 51px;
+	overflow: hidden;
+	border: 2px solid #D3D5D8;
+	white-space: nowrap;
+	position: relative;
+	cursor: pointer;
+	zoom: 1;
+	background: url(../img/icon-select-arrow.png) no-repeat right center #fff;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.big-input .ik_select_link{
+	font-size: 24px;
+	height: 60px;
+}
+
+.content.plan .markets .ik_select_link{
+	height: 58px;
+	line-height: 58px;
+	font-size: 18px;
+}
+
+
+.ik_select_link:hover {
+	color: #666;
+}
+
+.ik_select_link_disabled,
+.ik_select_link_disabled:hover {
+	background: #EAECEF;
+	color: #888;
+	cursor: default;
+}
+
+.ik_select_link.error{
+	padding: 0 24px 0 14px;
+	border-width: 2px;
+	border-color: #f60 !important;
+}
+
+.ik_select_link_wrap.open{
+}
+
+.ik_select_link.open{
+	background-image: url(../img/icon-select-arrow-open.png);
+	border-radius: 4px 4px 0 0;
+	border-bottom: 0;
+}
+.ik_select_link.ik_select_focus {
+	*border-color:#F00;
+}
+.ik_select_link_text {
+	overflow: hidden;
+	display: block;
+	width: 100%;
+	text-overflow: ellipsis;
+}
+.ik_select_block {
+	position: absolute;
+	z-index: 9999;
+	width: 100%;
+	left: 0px;
+	top: 55px;
+	display: none;
+	padding: 0;
+	border-radius: 0 0 3px 3px;
+	font-size: 18px;
+}
+
+.ik_select_block.big-input {
+	top: 61px;
+}
+
+.ik_select_block_right {
+	left: auto;
+}
+.ik_select_list {
+	border: 2px solid #D3D5D8;
+	border-top: 0;
+	padding: 0;
+	position: relative;
+	zoom: 1; *border:1px solid #000;
+	border-radius: 0 0 3px 3px;
+}
+
+/* ie8 hack */
+@media \0screen {
+	.ik_select_list {
+		border: 1px solid #000;
+	}
+
+}
+/* /ie8 hack */
+
+.ik_select_list_inner {
+	background: #fff;
+	padding: 5px 0;
+	border-top: 1px solid #f2f2f2;
+}
+.ik_select_list .ik_select_optgroup {
+	padding-left: 0;
+}
+.ik_select_optgroup_label {
+	color: #7f8080;
+	padding: 0 21px;
+}
+.ik_select_list ul {
+	margin: 0;
+	padding: 0;
+}
+.ik_select_list li {
+	list-style-type: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+	cursor: default;
+	line-height: 40px;
+	margin: 0;
+	padding: 0 15px;
+	position: relative;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	background-position: 0 center;
+	background-repeat: no-repeat;
+}
+
+.big-input .ik_select_list li {
+	font-size: 24px;
+	line-height: 60px;
+}
+
+.ik_select_list li:first-child{
+}
+
+.ik_select_optgroup li {
+	padding-left: 42px;
+}
+.ik_select_list li.ik_select_hover {
+	color: #666;
+	cursor: pointer;
+}
+
+.ik_select_link.open,
+.ik_select_list li.ik_select_active {
+	color: #a6adb3;
+}
+
+.ik_select_list .ik_select_optgroup_disabled .ik_select_optgroup_label, .ik_select_list li.ik_select_option_disabled {
+	color: #bbb;
+}
+
+.ik_select.ik_select_disabled .ik_select_link {
+	top: 0;
+	box-shadow: none;
+	opacity: 0.5;
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+}
+
+
+
+
+
+
+
+
+/* ==========================================================================
+	 nanoscroll
+	 ========================================================================== */
+/*
+
+
+
+.nano {
+	position : relative;
+	width    : 100%;
+	height   : 100%;
+	overflow : hidden;
+}
+.nano .content {
+	position      : absolute;
+	overflow      : scroll;
+	overflow-x    : hidden;
+	top           : 0;
+	right         : 0;
+	bottom        : 0;
+	left          : 0;
+}
+.nano .content::-webkit-scrollbar {
+	-webkit-appearance: none;
+}
+.nano > .pane {
+	background: transparent;
+	position : absolute;
+	width    : 11px;
+	right    : 15px;
+	top      : 0;
+	bottom   : 0;
+	visibility: hidden;
+}
+.nano > .pane > .slider {
+	background: rgba(0,0,0,.15);
+	position              : relative;
+	margin                : 0 1px;
+	-moz-border-radius    : 6px;
+	-webkit-border-radius : 6px;
+	border-radius         : 6px;
+}
+
+.lt-ie9 .nano > .pane > .slider {
+	background: #000;
+	filter: alpha(opacity=30);
+}
+
+.nano:hover > .pane, .pane.active {
+	visibility: visible;
+}
+.nano > .pane {
+	-webkit-transition    : .2s;
+	-moz-transition       : .2s;
+	-ms-transition        : .2s;
+	-o-transition         : .2s;
+	transition            : .2s;
+	-moz-border-radius    : 5px;
+	-webkit-border-radius : 5px;
+	border-radius         : 5px;
+	opacity               : .01;
+}
+.nano:hover > .pane, .pane.active {
+	opacity : 1;
+}
+
+.popup-src .nano.textarea{
+	background: #fff;
+	margin-bottom: 20px;
+	border-radius: 3px;
+	box-shadow: inset 0 1px 0 #ccc;
+	height: 175px;
+}
+
+.nano textarea.txt{
+	margin: 15px 0 !important;
+	padding: 0 20px !important;
+	box-shadow: none !important;
+	background: transparent !important;
+	overflow: hidden;
+}
+
+
+
+*/
+
+
+
+/** initial setup **/
+.nano {
+  position : relative;
+  width    : 100%;
+  height   : 100%;
+  overflow : hidden;
+}
+.nano .nanocontent {
+  position      : absolute;
+  overflow      : scroll;
+  top           : 0;
+  right         : 0;
+  bottom        : 0;
+  left          : 0;
+}
+
+/*
+.nano .nanocontent {
+  right         : -15px;
+  bottom        : -15px;
+  padding: 0 15px 15px 0;
+}
+
+*/
+
+
+.nanowrap{
+	overflow: hidden;
+}
+
+/*.autonano .nanowrap{
+	padding: 0 15px 15px 0;
+}
+*/
+
+.autonano .nano .nanocontent {
+	padding: 0;
+}
+
+.nano .nanocontent:focus {
+  outline: thin dotted;
+}
+.nano .nanocontent::-webkit-scrollbar {
+  visibility: hidden;
+}
+.has-scrollbar .nanocontent::-webkit-scrollbar {
+  visibility: visible;
+}
+.nano > .pane-y, .nano > .pane-x {
+  background : transparent;
+  position   : absolute;
+  visibility : hidden\9; /* Target only IE7 and IE8 with this hack */
+  opacity    : .01;
+  bottom     : 0;
+  right     : 0;
+  -webkit-transition    : .2s;
+  -moz-transition       : .2s;
+  -o-transition         : .2s;
+  transition            : .2s;
+  -moz-border-radius    : 5px;
+  -webkit-border-radius : 5px;
+  border-radius         : 5px;
+}
+.nano > .pane-y {
+  width      : 11px;
+  top        : 0;
+  right: 15px;
+}
+.nano > .pane-x {
+  height      : 11px;
+  left        : 0;
+}
+.nano > .pane-y > .slider-y, .nano > .pane-x > .slider-x {
+  background: #444;
+  background: rgba(0,0,0,.3);
+  position              : relative;
+  margin                : 0 1px;
+  -moz-border-radius    : 6px;
+  -webkit-border-radius : 6px;
+  border-radius         : 6px;
+}
+.nano > .pane-x > .slider-x {
+	height: 9px;
+  margin: 1px 0;
+}
+.nano:hover > .pane-y, .pane-y.active, .pane-y.flashed,
+.nano:hover > .pane-x, .pane-x.active, .pane-x.flashed {
+  visibility : visible\9; /* Target only IE7 and IE8 with this hack */
+  opacity    : 0.99;
+}
+
+.autonano .pane-x{
+	background: #aaa;
+	background: rgba(255,255,255,0.5);
+}
+
+
+.nanowrap.calc,
+.nanowrap.calc .nano,
+.nanowrap.calc .nanocontent{
+	height: auto !important;
+	overflow: auto !important;
+	position: relative !important;
+}
+
+
+
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
@@ -491,6 +914,10 @@ textarea.txt{
 	color: #000;	
 }
 
+.field{
+	margin-bottom: 20px;
+}
+
 input::-webkit-input-placeholder {
 	color: #ccc;
 }
@@ -506,6 +933,10 @@ input::-moz-placeholder {
 
 .w280{
 	width: 280px;
+}
+
+.mt20{
+	margin-top: 20px;
 }
 
 .fl{

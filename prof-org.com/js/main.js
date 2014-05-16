@@ -23,6 +23,142 @@ var $dom = {
 
 
 
+//style scrollbars (for select box):
+$.fn.doNanoScroll = function(){
+		return this.each(function(){
+				var $el = $(this),
+						$ik_inner = $el.closest('.ik_select_list_inner');
+				if($ik_inner.css('overflow') == 'auto'){
+						if($el.data('hasnanoscroll') !== true){
+								$el.wrap('<div class="nano"><div class="nanocontent">');
+								$el.data('hasnanoscroll', true);
+						}
+						$el.closest('.nano').nanoScroller();
+				} else {
+						if($el.data('hasnanoscroll') == true){
+								$el.closest('.nano').nanoScroller({stop: true});
+						}
+				}
+		});
+};
+
+$.fn.ikSelectNano = function(o){
+		return this.each(function(){
+				var $select = $(this);
+				$select.ikSelect(o ? o : {
+						syntax: "<div class=\"ik_select_link_wrap\"><div class=\"ik_select_link\"><span class=\"ik_select_link_text\"></span></div></div><div class=\"ik_select_block"+($select.closest('.big-input').length ? ' big-input' : '')+($select.hasClass('units-select') ? ' units-select' : '')+($select.hasClass('big-link') ? ' big-link' : '')+"\"><div class=\"ik_select_list\"></div></div>",
+						autoWidth: false,
+						ddFullWidth: false,
+						ddMaxHeight: 240,
+						skipFirst: true,
+						keepInsideWindow: false
+				}).bind('ikshow', function(){
+					$select.data('plugin_ikSelect').block.find('.ik_select_list_inner > ul').doNanoScroll();
+				});
+		});
+};
+
+
+$.fn.autoNano = function(o){
+		return this.each(function(){
+				var $root = $(this),
+						rootData = $root.data('autonano');
+				o = rootData ? rootData : $.extend({
+							scrollX: true,
+							scrollY: true,
+							adjustWrapSize: true,
+							adjustPaneXPosition: true
+						}, o);
+
+				$.fn.adjustWrapSize = function(){
+					return this.each(function(){
+						var $root = $(this),
+								$children = $root.children(),
+								w = 0;
+						$children.each(function(){
+							var thisWidth = $(this).outerWidth();
+							if(thisWidth > w){
+								w = thisWidth;
+							}
+						});
+						$root.width(w);
+					});
+				}
+
+				function nanoRefresh(){
+					if(!$root.is(':visible')) return;
+
+					var rootHeight = $root.height(),
+							rootWidth = $root.width();
+
+					if(!$root.data('autonano')){
+							$root.wrapInner('<div class="nano"><div class="nanocontent"><div class="nanowrap">');
+							$root.data('autonano', o);
+					}
+
+					var $nanowrap = $root.find('.nanowrap'),
+							$nano = $root.find('.nano');
+
+					if(o.adjustWrapSize == true) $nanowrap.adjustWrapSize();
+
+					if(o.scrollX !== true){
+						rootWidth = $nanowrap.width();
+						$root.width(rootWidth);
+					}
+
+					if(o.scrollY !== true){
+						rootHeight = $nanowrap.height();
+						$root.height(rootHeight);
+					}
+
+					if(rootWidth < $nanowrap.width() || rootHeight < $nanowrap.height()){
+						$nano.width(rootWidth).height(rootHeight).nanoScroller();
+					} else {
+							if($root.data('autonano')){
+								$nano.width(rootWidth).height(rootHeight);
+								$nano.nanoScroller({stop: true});
+							}
+					}
+
+					if(o.scrollX && o.adjustPaneXPosition){
+						adjustPaneXPosition();
+					}
+
+				}
+
+				nanoRefresh();
+
+				function adjustPaneXPosition(){
+					var windowBottomOffset = 15,
+							$paneX = $('.autonano:visible .pane-x'),
+							$nano = $paneX.closest('.nano');
+					if(!$paneX.length || !$nano.length) return;
+					var nanoHeight = $nano.height(),
+							oldBottom = parseInt($paneX.css('bottom')),
+							oldOffset = $paneX.offset().top,
+							scrollTop = $dom.window.scrollTop(),
+							windowHeight = $dom.window.height(),
+							delta = scrollTop + windowHeight - windowBottomOffset - oldOffset,
+							newBottom = delta > oldBottom ? 0 : (oldBottom - delta < nanoHeight - windowBottomOffset ? oldBottom - delta : nanoHeight - windowBottomOffset);
+
+					$paneX.css({
+						bottom: newBottom+'px'
+					});
+
+				}
+
+				if(!rootData){
+					$dom.window.debounce('resize.nano', nanoRefresh, 60);
+					$dom.window.debounce('scroll.nano', adjustPaneXPosition, 25);
+					if($root.closest('.ui-tabs').length){
+						$root.closest('.ui-tabs').bind('tabsactivate', nanoRefresh);
+					}
+				}
+
+		});
+};
+
+
 $.fn.serverValidate = function(o){
 	var specialInputs = {
 			},
@@ -134,6 +270,7 @@ $.fn.myForm = function(){
 		var $form = $(this);
 
 	$form.find('input[type=checkbox]').prettyCheckboxes();
+	$form.find('select').ikSelectNano();
 
 	if($form.hasClass('serverside')){
 		$form.serverValidate(validationOptions);
