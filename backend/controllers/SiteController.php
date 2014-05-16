@@ -13,7 +13,7 @@ class SiteController extends BackController
      */
     public function actionIndex()
     {
-        $this->redirect(array('/purchase'));
+        $this->redirect(array('/user'));
     }
 
     /**
@@ -131,75 +131,6 @@ class SiteController extends BackController
     {
         if(Yii::app()->cache)
             Yii::app()->cache->flush();
-    }
-    public function actionResetreduce()
-    {
-        die();
-        $connection = Yii::app()->db;
-        $sql ="
-        SELECT
-          z_offer.id AS `mpid`,
-          z_offer.price,
-          z_offer.amount,
-          offer.id,
-          offer.price,
-          offer.amount,
-          IF(z_offer.price>offer.price,((z_offer.price-offer.price)*offer.amount)/(offer.amount*offer.price)*100,0) AS price_reduce
-        FROM
-          z_offer
-        INNER JOIN z_offer offer
-        ON offer.pid=z_offer.id AND offer.id=(SELECT MAX(id) FROM z_offer WHERE z_offer.pid=`mpid`)
-        WHERE z_offer.pid IS NULL
-        ";
-        $command = $connection->createCommand($sql);
-        $result = $command->queryAll();
-        if($result)
-            foreach($result as $row){
-                echo $row['id'].' - '.$row['price_reduce'];
-                echo '<br>';
-                $offer=Offer::model()->findByPk($row['id']);
-                $offer->price_reduce=$row['price_reduce'];
-                $offer->save();
-            }
-    }
-    public function actionReclosepurchases(){
-        $purchases=Purchase::model()->findAllByAttributes(array('purchasestate_id'=>'4'));
-        foreach($purchases as $purchase){
-            //if($purchase['id']==11313){
-            echo ($purchase['id']);
-            //echo time();
-            $command = Yii::app()->db->createCommand('CALL closePurchase('.$purchase['id'].')');
-            $command->execute();
-            echo '<br>';
-            //}
-        }
-    }
-    public function actionResetofferplaces(){
-        $connection = Yii::app()->db;
-        $sql ="
-        SELECT
-          z_product.id
-        FROM
-          z_purchase
-        INNER JOIN z_product
-          ON z_product.`purchase_id`=z_purchase.id
-        INNER JOIN z_offer
-        ON z_offer.`product_id`=z_product.id
-        WHERE z_purchase.`purchasestate_id` != 4
-        group by z_product.id
-        /*limit 0,1*/
-        ";
-        $command = $connection->createCommand($sql);
-        $result = $command->queryAll();
-        if($result)
-            foreach($result as $row){
-                echo $row['id'];
-                echo "<br>";
-
-                $command = Yii::app()->db->createCommand('CALL resetOfferPlaces(:product_id)');
-                $command->bindParam(":product_id", $row['id'], PDO::PARAM_INT);
-                $command->execute();
-            }
     }
     
 }

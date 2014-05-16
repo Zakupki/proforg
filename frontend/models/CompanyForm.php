@@ -7,27 +7,6 @@
  */
 class CompanyForm extends CFormModel
 {
-    public $region_id;
-    public $egrpou;
-    public $id;
-    public $city_title;
-    public $city_id;
-    public $title;
-    public $markets;
-    public $address;
-    public $phones;
-    public $marketsids;
-    public $marketslist;
-    public $country_id;
-    public $companygroup_id;
-    public $account;
-    public $mfo;
-    public $bank;
-    public $billperiod_id;
-    public $ndspayer;
-    public $withnds;
-    public $director;
-
     private $_identity;
 
     /**
@@ -87,24 +66,7 @@ class CompanyForm extends CFormModel
             $this->addError('egrpou', 'Компания с таким кодом ЕГРПОУ');
     }
 
-    public function checkmarkets()
-    {
-        $marketArr = explode(',', trim($this->marketsids));
-        if (count($marketArr) < 1 || $marketArr[0] < 1)
-            $this->addError('marketsids', 'Укажите рынки в которых вы работаете');
-    }
 
-    public function checkPhones()
-    {
-        if (count($this->phones) > 0) {
-            foreach ($this->phones as $k => $phone) {
-                if (!$phone['phonecode'] || !$phone['phone'] || !$phone['countrycode'])
-                    unset($this->phones[$k]);
-            }
-        }
-        if (count($this->phones) < 1)
-            $this->addError('phones', 'Укажите контактный телефон');
-    }
 
     /**
      * Logs in the user using the given username and password in the model.

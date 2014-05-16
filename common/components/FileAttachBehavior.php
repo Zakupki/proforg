@@ -294,7 +294,7 @@ class FileAttachBehavior extends CActiveRecordBehavior
         return implode('; ', $o);
     }
 
-    public function beforeDelete()
+    public function beforeDelete($event=false)
     {
         if($this->forceFileClean)
             $this->deleteRelatedUpload();

@@ -137,6 +137,8 @@ return array (
     'Place' => 'Место',
     'Price reduce' => 'Процент снижения',
     'Role' => 'Роль',
+    'Request' => 'Запрос',
+    'Requests' => 'Запросы',
     'Serialized' => 'Сериализовано',
     'Short Text' => 'Краткий текст',
     'Size' => 'Размер',

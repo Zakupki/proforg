@@ -18,10 +18,15 @@
     ),
 )); ?>
 
-    <?php echo $form->dropDownListRow($model, 'fincompany_id', CHtml::listData(Company::model()->with('companygroup')->sort('companygroup.title,t.title')->findAll('companytype_id=2'),'id','title','companygroup.title')); ?>
-    <?php echo $form->dropDownListRow($model, 'company_id', CHtml::listData(Company::model()->with('companygroup')->sort('companygroup.title,t.title')->findAll('companytype_id=1'), 'id', 'title','companygroup.title')); ?>
-    <?php echo $form->textFieldRow($model, 'percent', array('class' => 'span2')); ?>
-    <?php echo $form->textFieldRow($model, 'sort', array('class' => 'span2')); ?>
+    <?php echo $form->textFieldRow($model, 'title', array('class' => 'span9', 'maxlength' => 255)); ?>
     <?php echo $form->checkBoxRow($model, 'status'); ?>
+    <?php echo $form->textFieldRow($model, 'sort', array('class' => 'span2')); ?>
+    <?php echo $form->textFieldRow($model, 'date_create', array('class' => 'span2')); ?>
+    <?php $this->widget('backend.extensions.calendar.SCalendar', array(
+        'inputField' => CHtml::activeId($model, 'date_create'),
+        'ifFormat' => '%Y-%m-%d %H:%M:%S',
+        'showsTime' => true,
+        'language' => 'ru-UTF',
+    )); ?>
 
 <?php $this->endWidget(); ?>

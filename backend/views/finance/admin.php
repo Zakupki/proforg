@@ -22,19 +22,10 @@ $this->breadcrumbs = array(
         'model' => $model,
         'columns' => array(
             'id',
-            array(
-                'name' => 'fincompany_id',
-                'value' => '$data->fincompany ? $data->fincompany->title : null',
-                'filter' => CHtml::listData(Company::model()->findAll('companytype_id=2'), 'id', 'title'),
-            ),
-            array(
-                'name' => 'company_id',
-                'value' => '$data->company ? $data->company->title : null',
-                'filter' => CHtml::listData(Company::model()->findAll('companytype_id=1'), 'id', 'title'),
-            ),
-            'percent',
-            'sort',
+            'title',
             'status',
+            'sort',
+            'date_create',
         ),
     )); ?>
 

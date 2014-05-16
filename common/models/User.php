@@ -31,6 +31,7 @@ class User extends BaseActiveRecord
     public $companygroup;
     public $city;
     public $address;
+    public $title;
 	public static function fbUser($authIdentity)
     {
         
@@ -191,7 +192,7 @@ class User extends BaseActiveRecord
      * @param array $filterKeys
      * @return array
      */
-    public function listData($filterKeys = array())
+    public function listData($filterKeys = array(), $sort = 'email')
     {
         $data = $this;
         if($filterKeys)
@@ -287,7 +288,7 @@ class User extends BaseActiveRecord
             'purchase' => array(self::HAS_MANY, 'Purchase', 'user_id'),
             'phones' => array(self::HAS_MANY, 'Phone', 'user_id'),
             'image' => array(self::BELONGS_TO, 'File', 'image_id'),
-            'userUsertypes' => array(self::MANY_MANY, 'Usertype', '{{user_usertype}}(user_id, usertype_id)', 'together' => true),
+            'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
         );
     }
 

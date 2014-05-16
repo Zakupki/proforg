@@ -1,7 +1,7 @@
 <?php
-/** @var $this CompanyController */
-/** @var $model Company */
-/** @var $models Company[] */
+/** @var $this RequestController */
+/** @var $model Request */
+/** @var $models Request[] */
 /** @var $form ActiveForm */
 ?>
 
@@ -18,9 +18,9 @@
     ),
 )); ?>
 
-    <?php echo $form->textFieldRow($model, 'title', array('class' => 'span9', 'maxlength' => 255)); ?>
-    <?php echo $form->checkBoxRow($model, 'status'); ?>
-    <?php echo $form->textFieldRow($model, 'sort', array('class' => 'span2')); ?>
+    <?php echo $form->dropDownListRow($model, 'company_id', Company::model()->listData()); ?>
+    <?php echo $form->dropDownListRow($model, 'finance_id', Finance::model()->listData()); ?>
+    <?php echo $form->dropDownListRow($model, 'user_id', User::model()->listData()); ?>
     <?php echo $form->textFieldRow($model, 'date_create', array('class' => 'span2')); ?>
     <?php $this->widget('backend.extensions.calendar.SCalendar', array(
         'inputField' => CHtml::activeId($model, 'date_create'),
@@ -28,6 +28,10 @@
         'showsTime' => true,
         'language' => 'ru-UTF',
     )); ?>
-    <?php echo $form->dropDownListRow($model, 'finance_id', Finance::model()->listData()); ?>
+    <?php echo $form->checkBoxRow($model, 'status'); ?>
+    <?php echo $form->textFieldRow($model, 'sort', array('class' => 'span2')); ?>
+    <?php echo $form->textFieldRow($model, 'value', array('class' => 'span9')); ?>
+    <?php echo $form->textFieldRow($model, 'available', array('class' => 'span9')); ?>
+    <?php echo $form->textFieldRow($model, 'left', array('class' => 'span9')); ?>
 
 <?php $this->endWidget(); ?>
