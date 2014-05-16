@@ -16,12 +16,14 @@
 
 <div id="top">
     <div class="cw clearfix">
+        <?if(Yii::app()->user->getId()){?>
         <div class="l">
             <div class="b profile company">Название компании</div>
         </div>
         <div class="r">
-            <a class="b" href="#">Выход</a>
+                <a class="b" href="/site/logout/">Выход</a>
         </div>
+        <?}?>
         <a class="logo" href="#"><img src="/img/logo.png"></a>
     </div>
 </div>
