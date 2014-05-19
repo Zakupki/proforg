@@ -18,7 +18,9 @@
     <div class="cw clearfix">
         <?if(Yii::app()->user->getId()){?>
         <div class="l">
-            <div class="b profile company">Название компании</div>
+            <? if($this->companyname){?>
+            <div class="b profile company"><?=$this->companyname;?></div>
+            <?}?>
         </div>
         <div class="r">
                 <a class="b" href="/site/logout/">Выход</a>
@@ -32,10 +34,9 @@
                 <div class="b phone">8 050 5176012</div>
             </div>
         <?}?>
-        <a class="logo" href="#"><img src="/img/logo.png"></a>
+        <a class="logo" href="/"><img src="/img/logo.png"></a>
     </div>
 </div>
-
 <div id="main">
     <?=$content;?>
 </div>

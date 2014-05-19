@@ -273,7 +273,7 @@ class User extends BaseActiveRecord
             array('display_name', 'length', 'max' => 64),
             array('last_name,usertype_id, activation_code, retrieve_code, first_name, image_id, detail_text, sort,company_id,finance_id,employer_id,date_create', 'safe'),
             array('image_id', 'file', 'types' => File::getAllowedExtensions(), 'allowEmpty' => true, 'on' => 'upload'),
-            array('id, login, email, display_name, activation_code, retrieve_code, last_name, first_name, position, status, subscribe_regular, subscrib', 'safe', 'on' => 'search'),
+            array('id, login, email, display_name, activation_code, retrieve_code, last_name, first_name, position, status', 'safe', 'on' => 'search'),
         );
     }
 
@@ -317,8 +317,6 @@ class User extends BaseActiveRecord
             'status' => Yii::t('backend', 'Status'),
             'detail_text' => Yii::t('backend', 'Description'),
             'sort' => Yii::t('backend', 'Sort'),
-            'subscribe_regular' => Yii::t('backend', 'Subscribe regular'),
-            'subscribe' => Yii::t('backend', 'Subscribe'),
             'authItems' => Yii::t('backend', 'Role'),
             'company_id' => Yii::t('backend', 'Company'),
             'finance_id' => Yii::t('backend', 'Finance'),
@@ -367,8 +365,6 @@ class User extends BaseActiveRecord
         $criteria->compare('t.last_name', $this->last_name, true);
         $criteria->compare('t.first_name', $this->first_name, true);
         $criteria->compare('t.status', $this->status);
-        $criteria->compare('t.subscribe_regular', $this->subscribe_regular);
-        $criteria->compare('t.subscribe', $this->subscribe);
 		
 
         return parent::searchInit($criteria);

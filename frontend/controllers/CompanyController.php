@@ -6,16 +6,12 @@ class CompanyController extends FrontController
     {
         parent::init();
         Yii::import('common.extensions.yii-mail.*');
+        if(!isset($this->userData['usertype_id']) || $this->userData['usertype_id']!=3)
+            $this->redirect('/');
     }
 
     public function actionIndex()
     {
        $this->render('index');
     }
-    public function actionUpdate()
-    {
-        $this->render('update');
-    }
-
-
 }

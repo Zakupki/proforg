@@ -31,7 +31,7 @@ abstract class FrontController extends CController
     public $og_title;
     public $og_description;
     public $og_image;
-
+    public $userData;
     public $seo_title;
     public $seo_description;
     public $seo_image;
@@ -81,6 +81,7 @@ abstract class FrontController extends CController
             }else
                 $this->redirect('/browser');
         }
+    $this->userData=yii::app()->user->getData();
     }
 
     /**

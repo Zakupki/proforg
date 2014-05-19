@@ -10,7 +10,11 @@ class SiteController extends FrontController
 
     public function actionIndex()
     {
-        $this->redirect('/site/login/');
+        $redirects=array(2=>'user',3=>'company',4=>'finance');
+        if($this->userData['usertype_id']>1)
+            $this->redirect($redirects[$this->userData['usertype_id']]);
+        if(!yii::app()->user->getId())
+            $this->redirect('/site/login/');
     }
 
     public function actionRegister()

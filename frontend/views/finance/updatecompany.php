@@ -3,7 +3,7 @@
 			<div class="form narrow company-form">
 				<div class="login-screen">			
 					<h1>Добавить компанию</h1>
-					<form method="post" action="/company/update/" name="company-form" class="serverside">
+					<form method="post" action="/finance/updatecompany/" name="company-form" class="serverside">
 						<input class="txt w280" type="text" name="CompanyForm[title]" id="CompanyForm_title" placeholder="Заголовок">
 						<div class="field w280">							
 							<select name="CompanyForm[finance]" id="CompanyForm_finance">
