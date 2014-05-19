@@ -31,7 +31,7 @@ class User extends BaseActiveRecord
     public $companygroup;
     public $city;
     public $address;
-    public $title;
+    public $display_name;
 	public static function fbUser($authIdentity)
     {
         
@@ -192,7 +192,7 @@ class User extends BaseActiveRecord
      * @param array $filterKeys
      * @return array
      */
-    public function listData($filterKeys = array(), $sort = 'email')
+    public function listData($filterKeys = array(), $sort = 'title')
     {
         $data = $this;
         if($filterKeys)
@@ -266,12 +266,12 @@ class User extends BaseActiveRecord
         return array(
             array('email', 'required'),
             array('email', 'unique','message'=>'Email уже есть в базе'),
-            array('status, requests_purchase_id, subscribe_regular, subscribe, sort', 'numerical', 'integerOnly' => true),
+            array('status, deleted, sort', 'numerical', 'integerOnly' => true),
             array('login, email', 'length', 'max' => 64),
             array('password', 'length', 'min' => 6),
             array('password', 'required', 'on' => 'create'),
             array('display_name', 'length', 'max' => 64),
-            array('last_name, activation_code, retrieve_code, first_name, position, image_id, detail_text, sort,company,companyrole,phone,date_create,companygroup,city,address', 'safe'),
+            array('last_name, activation_code, retrieve_code, first_name, image_id, detail_text, sort,company_id,finance_id,employer_id,date_create', 'safe'),
             array('image_id', 'file', 'types' => File::getAllowedExtensions(), 'allowEmpty' => true, 'on' => 'upload'),
             array('id, login, email, display_name, activation_code, retrieve_code, last_name, first_name, position, status, subscribe_regular, subscrib', 'safe', 'on' => 'search'),
         );
@@ -289,6 +289,9 @@ class User extends BaseActiveRecord
             'phones' => array(self::HAS_MANY, 'Phone', 'user_id'),
             'image' => array(self::BELONGS_TO, 'File', 'image_id'),
             'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
+            'finance' => array(self::BELONGS_TO, 'Finance', 'finance_id'),
+            'employer' => array(self::BELONGS_TO, 'Company', 'company_id'),
+            'userUsertypes' => array(self::MANY_MANY, 'Usertype', '{{user_usertype}}(user_id, usertype_id)', 'together' => true),
         );
     }
 
@@ -310,20 +313,20 @@ class User extends BaseActiveRecord
             'display_name' => Yii::t('backend', 'Display Name'),
             'last_name' => Yii::t('backend', 'Last Name'),
             'first_name' => Yii::t('backend', 'Family Name'),
-            'position' => Yii::t('backend', 'Position'),
             'status' => Yii::t('backend', 'Status'),
             'detail_text' => Yii::t('backend', 'Description'),
             'sort' => Yii::t('backend', 'Sort'),
             'subscribe_regular' => Yii::t('backend', 'Subscribe regular'),
             'subscribe' => Yii::t('backend', 'Subscribe'),
             'authItems' => Yii::t('backend', 'Role'),
-            'company' => Yii::t('backend', 'Company'),
-            'companygroup' => Yii::t('backend', 'Companygroup'),
-            'companyrole' => Yii::t('backend', 'Company Role'),
-            'phone' => Yii::t('backend', 'Phone'),
+            'company_id' => Yii::t('backend', 'Company'),
+            'finance_id' => Yii::t('backend', 'Finance'),
+            'employer_id' => Yii::t('backend', 'Employer'),
             'date_create' => Yii::t('backend', 'Date Register'),
             'address' => Yii::t('backend', 'Address'),
-            'city' => Yii::t('backend', 'City')
+            'city' => Yii::t('backend', 'City'),
+            'companies' =>  Yii::t('backend', 'Companies'),
+            'deleted' =>  Yii::t('backend', 'Deleted'),
         );
     }
 
@@ -362,7 +365,6 @@ class User extends BaseActiveRecord
         $criteria->compare('t.display_name', $this->display_name, true);
         $criteria->compare('t.last_name', $this->last_name, true);
         $criteria->compare('t.first_name', $this->first_name, true);
-        $criteria->compare('t.position', $this->position, true);
         $criteria->compare('t.status', $this->status);
         $criteria->compare('t.subscribe_regular', $this->subscribe_regular);
         $criteria->compare('t.subscribe', $this->subscribe);
@@ -423,7 +425,10 @@ class User extends BaseActiveRecord
             $passwd = $this->passHash($this->password,$salt);
 		}else
             $passwd = $this->id ? $this->findByPk($this->id)->password : null;
-        
+
+        foreach ($this->attributes as $key => $value)
+            if (!$value)
+                $this->$key = NULL;
         
         
         $this->setAttribute('password', $passwd);
@@ -458,7 +463,6 @@ class User extends BaseActiveRecord
             $profile->last_name = $user->last_name;
             $profile->email = $user->email;
             $profile->first_name = $user->first_name;
-            $profile->position = $user->position;
         }
         return $profile;
     }
@@ -762,12 +766,18 @@ class User extends BaseActiveRecord
             z_user.id,
             CONCAT(z_user.first_name," ", z_user.last_name) as name,
             z_user.email,
-            z_company.title AS company
+            z_company.title AS company,
+            z_city.title as city,
+            z_region.title as region
             FROM z_market_company
             INNER JOIN z_company_user
               ON z_company_user.company_id=z_market_company.company_id AND z_company_user.companyrole_id=:companyrole_id
             INNER JOIN z_company
               ON z_company.id=z_company_user.company_id
+            INNER JOIN z_city
+              ON z_city.id=z_company.city_id
+            INNER JOIN z_region
+              ON z_region.id=z_city.region_id
             INNER JOIN z_user
               ON z_user.id=z_company_user.user_id
             WHERE z_market_company.market_id=:market_id AND z_market_company.company_id NOT IN ('.implode(',',$usercompanies).')
@@ -787,7 +797,7 @@ class User extends BaseActiveRecord
               SUM(t.total) AS total,
               SUM(t.economy_sum) AS economy_sum,
               SUM(t.company_num) / COUNT(DISTINCT t.id) AS avg_company_num,
-              SUM(t.not_concurent) AS not_concurent,
+              SUM(IF(t.company_num<2,1,0)) AS not_concurent,
               user.id AS user_id,
               user.email,
               user.first_name,
@@ -801,7 +811,7 @@ class User extends BaseActiveRecord
                   `t`.`company_id` = `company`.`id`
                 )
               INNER JOIN z_companygroup_service
-                ON z_companygroup_service.companygroup_id=company.companygroup_id AND service_id=7 AND z_companygroup_service.status=1
+                ON z_companygroup_service.companygroup_id=company.companygroup_id AND z_companygroup_service.service_id=7 AND z_companygroup_service.status=1
             WHERE t.date_closed BETWEEN "'.date("Y-m-d",strtotime("-1 week")).' 00:00:00" AND "'.date("Y-m-d").' 00:00:00"
             GROUP BY t.user_id
             ';
@@ -826,7 +836,7 @@ class User extends BaseActiveRecord
                 ON z_company.id = z_company_user.`company_id`
               INNER JOIN z_companygroup_service
                 ON z_companygroup_service.`companygroup_id` = z_company.companygroup_id
-                AND z_companygroup_service.`service_id` = 9
+                AND z_companygroup_service.`service_id` = 7
                 AND z_companygroup_service.`status` = 1
               INNER JOIN z_user
                 ON z_user.id = z_company_user.`user_id`
@@ -906,6 +916,24 @@ class User extends BaseActiveRecord
         WHERE z_purchase.`date_closed` BETWEEN "'.date("Y-m-d",strtotime("-1 month")).' 00:00:00" AND "'.date("Y-m-d").' 00:00:00"
         GROUP BY z_purchase.`company_id`,
           z_company_user.`user_id`
+        ';
+        $command = $connection->createCommand($sql);
+        /* $command->bindParam(":market_id", $params['market_id'], PDO::PARAM_INT);
+         $command->bindParam(":companyrole_id", $params['companyrole_id'], PDO::PARAM_INT);*/
+        $result = $command->queryAll();
+        return $result;
+    }
+    public function getOperators(){
+        $connection = Yii::app()->db;
+        $sql = '
+        SELECT
+          DISTINCT(z_user.id) AS id,
+          z_user.email
+        FROM
+          `z_auth_assignment`
+        INNER JOIN z_user
+        ON z_user.id=`z_auth_assignment`.`userid`
+        ORDER BY z_user.email
         ';
         $command = $connection->createCommand($sql);
         /* $command->bindParam(":market_id", $params['market_id'], PDO::PARAM_INT);

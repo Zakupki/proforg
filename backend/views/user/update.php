@@ -4,7 +4,7 @@
 /** @var $authItemModel AuthItem */
 ?>
 <?php
-$this->pageTitle = Yii::t('backend', 'Update "{title}"', array('{title}' => $model->display_name));
+$this->pageTitle = Yii::t('backend', 'Update "{title}"', array('{title}' => $model->first_name.' '.$model->last_name));
 $this->breadcrumbs = array(
 	Yii::t('backend', 'Users') => array('admin'),
 	Yii::t('backend', 'Update'),
