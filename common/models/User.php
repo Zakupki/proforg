@@ -266,12 +266,12 @@ class User extends BaseActiveRecord
         return array(
             array('email', 'required'),
             array('email', 'unique','message'=>'Email уже есть в базе'),
-            array('status, deleted, sort', 'numerical', 'integerOnly' => true),
+            array('status, deleted, usertype_id, sort', 'numerical', 'integerOnly' => true),
             array('login, email', 'length', 'max' => 64),
             array('password', 'length', 'min' => 6),
             array('password', 'required', 'on' => 'create'),
             array('display_name', 'length', 'max' => 64),
-            array('last_name, activation_code, retrieve_code, first_name, image_id, detail_text, sort,company_id,finance_id,employer_id,date_create', 'safe'),
+            array('last_name,usertype_id, activation_code, retrieve_code, first_name, image_id, detail_text, sort,company_id,finance_id,employer_id,date_create', 'safe'),
             array('image_id', 'file', 'types' => File::getAllowedExtensions(), 'allowEmpty' => true, 'on' => 'upload'),
             array('id, login, email, display_name, activation_code, retrieve_code, last_name, first_name, position, status, subscribe_regular, subscrib', 'safe', 'on' => 'search'),
         );
@@ -289,9 +289,10 @@ class User extends BaseActiveRecord
             'phones' => array(self::HAS_MANY, 'Phone', 'user_id'),
             'image' => array(self::BELONGS_TO, 'File', 'image_id'),
             'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
+            'usertype_id' => array(self::BELONGS_TO, 'Company', 'company_id'),
             'finance' => array(self::BELONGS_TO, 'Finance', 'finance_id'),
             'employer' => array(self::BELONGS_TO, 'Company', 'company_id'),
-            'userUsertypes' => array(self::MANY_MANY, 'Usertype', '{{user_usertype}}(user_id, usertype_id)', 'together' => true),
+            //'userUsertypes' => array(self::MANY_MANY, 'Usertype', '{{user_usertype}}(user_id, usertype_id)', 'together' => true),
         );
     }
 

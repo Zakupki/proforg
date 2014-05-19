@@ -21,19 +21,17 @@
             <?php echo $form->textFieldRow($model, 'first_name', array('class' => 'span4', 'maxlength' => 64)); ?>
             <?php echo $form->textFieldRow($model, 'last_name', array('class' => 'span4', 'maxlength' => 64)); ?>
             <?php echo $form->textFieldRow($model, 'email', array('class' => 'span4', 'maxlength' => 64)); ?>
+            <?php echo $form->dropDownListRow($model, 'usertype_id', Usertype::model()->listData()); ?>
             <?php echo $form->passwordFieldRow($model, 'password', array('class' => 'span4', 'value' => '', 'autocomplete' => 'off')); ?>
-            <?php echo $form->textFieldRow($model, 'sort', array('class' => 'span2')); ?>
             <?php echo $form->dropDownListRow($model, 'finance_id', Finance::model()->listData(),array('empty'=>'')); ?>
             <?php echo $form->dropDownListRow($model, 'company_id', Company::model()->listData(),array('empty'=>'')); ?>
             <?php echo $form->dropDownListRow($model, 'employer_id', Company::model()->listData(),array('empty'=>'')); ?>
+            <?php echo $form->textFieldRow($model, 'sort', array('class' => 'span2')); ?>
             <?php echo $form->checkBoxRow($model, 'deleted'); ?>
             <?php echo $form->checkBoxRow($model, 'status'); ?>
         </div>
         <div class="span6">
-            <!--<?php echo $form->dropDownListRow($model, 'userUsertypes', Usertype::model()->listData(), array(
-                'size' => 13,
-                'multiple' => true,
-            )); ?>-->
+
         </div>
     </div>
 <?php $this->endWidget(); ?>
