@@ -6,7 +6,7 @@
 					<form method="post" action="/finance/updatecompany/" name="company-form" class="serverside">
 						<input class="txt w280" type="text" name="CompanyForm[title]" id="CompanyForm_title" placeholder="Заголовок">
 						<div class="field w280">							
-							<select name="CompanyForm[finance]" id="CompanyForm_finance">
+							<select name="CompanyForm[finance_id]" id="CompanyForm_finance">
 								<option>Финансы</option>
 								<option value="1">Приват</option>
 							</select>

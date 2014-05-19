@@ -25,19 +25,14 @@ class FinanceController extends FrontController
 
     public function actionUpdatecompany()
     {
-
-        if (isset($_GET['id'])) {
-            if ($_GET['id'] > 0)
-                $model = Company::findByPk($_GET['id']);
-        } elseif (!isset($model->id))
-            $model = new Company;
-
+        $model = new CompanyForm;
         if (isset($_POST['ajax'])) {
             echo CActiveForm::validate($model);
             die();
         }
-        if (isset($_POST['Company'])) {
-
+        if (isset($_POST['CompanyForm'])) {
+            $model->attributes = $_POST['CompanyForm'];
+            $model->save();
         }
         $this->render('updatecompany');
     }
