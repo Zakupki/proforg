@@ -72,8 +72,9 @@ class UserForm extends CFormModel
 
     public function save()
     {
+        $user = new User;
+        print_r($this->getErrors());
         if (!$this->getErrors()) {
-            $user = User::model()->findByPk(user()->getId());
             $user->name = $this->name;
             $user->first_name = $this->first_name;
             if (isset($this->password))
@@ -81,6 +82,8 @@ class UserForm extends CFormModel
             $user->save();
             if (!$user->getErrors())
                 return true;
+            else
+                print_r($user->getErrors());
         }
     }
 
