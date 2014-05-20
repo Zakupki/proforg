@@ -18,7 +18,7 @@
     <div class="cw clearfix">
         <?if(Yii::app()->user->getId()){?>
         <div class="l">
-            <? if($this->companyname){?>
+            <? if(isset($this->companyname)){?>
             <div class="b profile company"><?=$this->companyname;?></div>
             <?}?>
         </div>

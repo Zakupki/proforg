@@ -22,6 +22,11 @@ class FinanceController extends FrontController
         $requests=Request::model()->findAll();
         $this->render('index',array('requests'=>$requests));
     }
+    public function actionCompanies()
+    {
+        $companies=Company::model()->findAllByAttributes(array('finance_id'=>$this->userData['finance_id']));
+        $this->render('companies',array('companies'=>$companies));
+    }
 
     public function actionUpdatecompany()
     {

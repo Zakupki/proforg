@@ -6,15 +6,23 @@ class SiteController extends FrontController
     {
         parent::init();
         Yii::import('common.extensions.yii-mail.*');
+        if(!isset($this->userData['usertype_id']) || $this->userData['usertype_id']!=3)
+            $this->redirect('/');
+
+        if(isset($this->userData['company_id'])){
+            $this->finance=Company::model()->findByAttributes(array('id'=>$this->userData['company_id']));
+            $this->companyname=$this->finance->title;
+        }
     }
 
     public function actionIndex()
     {
+        if(!yii::app()->user->getId())
+            $this->redirect('/site/login/');
         $redirects=array(2=>'user',3=>'company',4=>'finance');
         if($this->userData['usertype_id']>1)
             $this->redirect($redirects[$this->userData['usertype_id']]);
-        if(!yii::app()->user->getId())
-            $this->redirect('/site/login/');
+
     }
 
     public function actionRegister()

@@ -12,16 +12,16 @@
                     <th></th>
                 </tr>
                 <?
-                if(isset($requests))
-                foreach($requests as $req){?>
+                if(isset($companies))
+                foreach($companies as $com){?>
                 <tr>
                     <td><a class="btn check" href="#"></a></td>
-                    <td class="gray"><?=str_replace(',',' /',Yii::app()->dateFormatter->formatDateTime($req->date_create, 'short', 'short')); ?></td>
-                    <td><a href="#"><?=$req->company->title;?></a></td>
-                    <td><a href="#"><?=$req->user->last_name;?> <?=$req->user->first_name;?></a></td>
-                    <td class="num gray"><?=$req->available;?></td>
-                    <td class="num"><?=$req->value;?></td>
-                    <td class="num gray"><?=$req->left;?></td>
+                    <td><a href="#"><?=$com->title;?></a></td>
+                    <td><a href="#"></a></td>
+                    <td class="num gray"></td>
+                    <td class="num"></td>
+                    <td class="num gray"></td>
+                    <td class="gray"><?=str_replace(',',' /',Yii::app()->dateFormatter->formatDateTime($com->date_create, 'short', 'short')); ?></td>
                     <td class="actions"><a class="btn cross" href="#"></a></td>
                 </tr>
                 <?}?>
