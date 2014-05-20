@@ -9,7 +9,7 @@
         </div>
         <div class="c side adduser">
             <div class="actions">
-                <a class="btn add-user" href="#">Добавить работника</a>
+                <a class="btn add-user" href="/company/updateuser/">Добавить работника</a>
             </div>
         </div>
     </div>
