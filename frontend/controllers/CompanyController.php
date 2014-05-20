@@ -32,7 +32,6 @@ class CompanyController extends FrontController
         if (isset($_POST['UserForm'])) {
             $model->attributes = $_POST['UserForm'];
             $model->save();
-            print_r($model->getErrors());
         }
         $this->render('updateuser');
     }
