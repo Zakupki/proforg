@@ -30,8 +30,8 @@
             <? foreach($users as $user){?>
             <tr>
                 <td><a href="#"><?=$user['first_name'];?> <?=$user['name'];?> <?=$user['last_name'];?></a></td>
-                <td class="num">15</td>
-                <td class="num">10200</td>
+                <td class="num"><?=$user['salaryday'];?></td>
+                <td class="num"><?=$user['salary'];?></td>
                 <td class="num">10200</td>
                 <td class="num gray">10200</td>
                 <td class="num gray">10200</td>
