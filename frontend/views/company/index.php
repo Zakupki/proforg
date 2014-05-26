@@ -27,8 +27,9 @@
                 <th>Всего в году</th>
                 <th></th>
             </tr>
+            <? foreach($users as $user){?>
             <tr>
-                <td><a href="#">Иванов Иван Иванович</a></td>
+                <td><a href="#"><?=$user['first_name'];?> <?=$user['name'];?> <?=$user['last_name'];?></a></td>
                 <td class="num">15</td>
                 <td class="num">10200</td>
                 <td class="num">10200</td>
@@ -37,36 +38,7 @@
                 <td class="num gray">1060200</td>
                 <td class="actions"><a class="btn cross" href="#"></a></td>
             </tr>
-            <tr>
-                <td><a href="#">Иванов Иван Иванович</a></td>
-                <td class="num">15</td>
-                <td class="num">10200</td>
-                <td class="num">10200</td>
-                <td class="num gray">10200</td>
-                <td class="num gray">10200</td>
-                <td class="num gray">1060200</td>
-                <td class="actions"><a class="btn cross" href="#"></a></td>
-            </tr>
-            <tr>
-                <td><a href="#">Иванов Иван Иванович</a></td>
-                <td class="num">15</td>
-                <td class="num">10200</td>
-                <td class="num">10200</td>
-                <td class="num gray">10200</td>
-                <td class="num gray">10200</td>
-                <td class="num gray">1060200</td>
-                <td class="actions"><a class="btn cross" href="#"></a></td>
-            </tr>
-            <tr>
-                <td><a href="#">Иванов Иван Иванович</a></td>
-                <td class="num">15</td>
-                <td class="num">10200</td>
-                <td class="num">10200</td>
-                <td class="num gray">10200</td>
-                <td class="num gray">10200</td>
-                <td class="num gray">1060200</td>
-                <td class="actions"><a class="btn cross" href="#"></a></td>
-            </tr>
+            <?}?>
         </table>
     </div>
 </div>

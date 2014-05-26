@@ -9,6 +9,8 @@
                         <input class="txt w280" type="text" name="UserForm[first_name]" id="UserForm_first_name" placeholder="Имя">
                         <input class="txt w280" type="text" name="UserForm[name]" id="UserForm_name" placeholder="Отчество">
                         <input class="txt w280" type="text" name="UserForm[email]" id="UserForm_email" placeholder="Email">
+                        <input class="txt w280" type="text" name="UserForm[salary]" id="UserForm_salary" placeholder="Зарплата">
+                        <input class="txt w280" type="text" name="UserForm[salaryday]" id="UserForm_salaryday" min="1" max="31" placeholder="День зврплаты">
 						<!--<div class="field w280">
 							<select name="UserForm[finance_id]" id="UserForm_finance">
 								<option>Финансы</option>

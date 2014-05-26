@@ -20,7 +20,10 @@ class CompanyController extends FrontController
 
     public function actionIndex()
     {
-       $this->render('index');
+       $users=array();
+       if(isset($this->userData['company_id']))
+       $users=User::model()->findAllByAttributes(array('employer_id'=>$this->userData['company_id']));
+       $this->render('index',array('users'=>$users));
     }
     public function actionUpdateuser()
     {

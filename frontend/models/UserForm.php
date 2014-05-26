@@ -16,6 +16,8 @@ class UserForm extends CFormModel
     public $old_password;
     public $password;
     public $repeat_password;
+    public $salary;
+    public $salaryday;
 
     private $_identity;
 
@@ -27,8 +29,8 @@ class UserForm extends CFormModel
     public function rules()
     {
 
-        $rules[] = array('employer_id,name,first_name,last_name,email', 'required');
-        $rules[] = array('password', 'safe');
+        $rules[] = array('employer_id,name,first_name,salaryday,salary,last_name,email', 'required');
+        $rules[] = array('password,salary', 'safe');
         return $rules;
     }
 
@@ -41,6 +43,8 @@ class UserForm extends CFormModel
             $user->last_name = $this->last_name;
             $user->email = $this->email;
             $user->employer_id = $this->employer_id;
+            $user->salary = $this->salary;
+            $user->salaryday = $this->salaryday;
             $user->usertype_id = 2;
             $user->password = Yii::app()->epassgen->generate();
             $user->save();

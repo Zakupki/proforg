@@ -32,6 +32,8 @@ class User extends BaseActiveRecord
     public $city;
     public $address;
     public $display_name;
+    public $salary;
+    public $salaryday;
 	public static function fbUser($authIdentity)
     {
         
@@ -264,14 +266,14 @@ class User extends BaseActiveRecord
     public function rules()
     {
         return array(
-            array('email', 'required'),
+            array('email,salary,salaryday', 'required'),
             array('email', 'unique','message'=>'Email уже есть в базе'),
-            array('status, deleted, usertype_id, sort', 'numerical', 'integerOnly' => true),
+            array('status, deleted, usertype_id, sort, salaryday', 'numerical', 'integerOnly' => true),
             array('login, email', 'length', 'max' => 64),
             array('password', 'length', 'min' => 6),
             array('password', 'required', 'on' => 'create'),
             array('display_name', 'length', 'max' => 64),
-            array('last_name,usertype_id, activation_code, retrieve_code, first_name, image_id, detail_text, sort,company_id,finance_id,employer_id,date_create', 'safe'),
+            array('last_name, salary, usertype_id, activation_code, retrieve_code, first_name, image_id, detail_text, sort,company_id,finance_id,employer_id,date_create', 'safe'),
             array('image_id', 'file', 'types' => File::getAllowedExtensions(), 'allowEmpty' => true, 'on' => 'upload'),
             array('id, login, email, display_name, activation_code, retrieve_code, last_name, first_name, position, status', 'safe', 'on' => 'search'),
         );
@@ -326,6 +328,8 @@ class User extends BaseActiveRecord
             'city' => Yii::t('backend', 'City'),
             'companies' =>  Yii::t('backend', 'Companies'),
             'deleted' =>  Yii::t('backend', 'Deleted'),
+            'salary' =>  Yii::t('backend', 'Salary'),
+            'salaryday' =>  Yii::t('backend', 'Salary day'),
         );
     }
 
