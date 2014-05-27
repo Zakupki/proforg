@@ -20,6 +20,8 @@
         <div class="l">
             <? if(isset($this->companyname)){?>
             <div class="b profile company"><?=$this->companyname;?></div>
+            <?}else{?>
+                <div class="b profile company"><?=Yii::app()->user->getEmail();?></div>
             <?}?>
         </div>
         <div class="r">

@@ -8,12 +8,12 @@ class UserController extends FrontController
         Yii::import('common.extensions.yii-mail.*');
         if(!isset($this->userData['usertype_id']) || $this->userData['usertype_id']!=2)
             $this->redirect('/');
-
     }
 
     public function actionIndex()
     {
-       $this->render('index');
+       $user=User::model()->findByPk(yii::app()->user->getId());
+       $this->render('index',array('user'=>$user));
     }
 
 

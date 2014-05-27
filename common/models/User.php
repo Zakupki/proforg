@@ -34,7 +34,6 @@ class User extends BaseActiveRecord
     public $display_name;
     public $salary;
     public $salaryday;
-    public $display_name;
 	public static function fbUser($authIdentity)
     {
         

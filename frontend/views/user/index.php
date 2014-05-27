@@ -9,7 +9,7 @@
             </div>
             <div class="c side wallet">
                 <div class="arrowlabel-r gray">Ваш карточный счёт</div>
-                <div class="name">Хозяинов Алексей Викторович</div>
+                <div class="name"><?=$user->last_name;?> <?=$user->first_name;?> <?=$user->name;?></div>
                 <div class="cc">
                     <span class="ccnum">3456</span>
                 </div>
