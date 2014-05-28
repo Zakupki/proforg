@@ -26,9 +26,12 @@
             <?php echo $form->dropDownListRow($model, 'finance_id', Finance::model()->listData(),array('empty'=>'')); ?>
             <?php echo $form->dropDownListRow($model, 'company_id', Company::model()->listData(),array('empty'=>'')); ?>
             <?php echo $form->dropDownListRow($model, 'employer_id', Company::model()->listData(),array('empty'=>'')); ?>
+            <?php echo $form->textFieldRow($model, 'salary', array('class' => 'span4', 'maxlength' => 64)); ?>
+            <?php echo $form->textFieldRow($model, 'salaryday', array('class' => 'span4', 'maxlength' => 64)); ?>
             <?php echo $form->textFieldRow($model, 'sort', array('class' => 'span2')); ?>
             <?php echo $form->checkBoxRow($model, 'deleted'); ?>
             <?php echo $form->checkBoxRow($model, 'status'); ?>
+
         </div>
         <div class="span6">
 

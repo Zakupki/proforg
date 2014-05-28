@@ -275,7 +275,7 @@ class User extends BaseActiveRecord
             array('display_name', 'length', 'max' => 64),
             array('last_name, salary, usertype_id, activation_code, retrieve_code, first_name, image_id, detail_text, sort,company_id,finance_id,employer_id,date_create', 'safe'),
             array('image_id', 'file', 'types' => File::getAllowedExtensions(), 'allowEmpty' => true, 'on' => 'upload'),
-            array('id, login, email, display_name, activation_code, retrieve_code, last_name, first_name, position, status', 'safe', 'on' => 'search'),
+            array('id, login, email, display_name, activation_code, retrieve_code, last_name, first_name, status', 'safe', 'on' => 'search'),
         );
     }
 
@@ -497,7 +497,6 @@ class User extends BaseActiveRecord
         SELECT
           z_user.`first_name`,
           z_user.`last_name`,
-          z_user.`position`,
           z_company_user.`user_id`
         FROM z_user
         INNER JOIN z_company_user
