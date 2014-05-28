@@ -167,9 +167,9 @@ class UserController extends BackController
     {
         /** @var $model Product */
        
-        /*$model->junction->attach($model);
+        $model->junction->attach($model);
         $pcData = isset($_POST['User']['userUsertypes']) ? array_unique($_POST['User']['userUsertypes']) : array();
-        $model->junction->updateRelated('userUsertypes', $pcData);*/
+        $model->junction->updateRelated('userUsertypes', $pcData);
 
          return parent::afterActionDone($model);
     }

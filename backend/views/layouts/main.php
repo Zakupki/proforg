@@ -60,8 +60,14 @@ $cs->registerCssFile($baseUrl.'/backend/css/main.css?v=1', 'screen');
                         'active' => $this->getId() === 'user',
                         'active' => in_array($this->getId(), array('user')),
                     ),
+                    array('label' => Yii::t('backend', 'Cards'),
+                        'url' => array('/card'),
+                        'visible' => user()->checkAccess('Card.*'),
+                        'active' => $this->getId() === 'card',
+                        'active' => in_array($this->getId(), array('card')),
+                    ),
 
-                   array('label' => Yii::t('backend', 'Companies'),
+                   /*array('label' => Yii::t('backend', 'Companies'),
                         'url' => array('#'),
                         'visible' => user()->checkAccess('Company.*'),
                         'active' => in_array($this->getId(), array('company','companygroup','finance')),
@@ -88,7 +94,7 @@ $cs->registerCssFile($baseUrl.'/backend/css/main.css?v=1', 'screen');
                             ),
                            
                         ),
-                    ),
+                    ),*/
 
                     array('label' => Yii::t('backend', 'Login'),
                         'url' => array('/default/login'),

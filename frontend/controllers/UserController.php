@@ -12,8 +12,27 @@ class UserController extends FrontController
 
     public function actionIndex()
     {
+       $card=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId()));
        $user=User::model()->findByPk(yii::app()->user->getId());
-       $this->render('index',array('user'=>$user));
+       $this->render('index',array('user'=>$user,'card'=>$card));
+    }
+    public function actionCards()
+    {
+        $cards=Card::model()->findAllByAttributes(array('user_id'=>yii::app()->user->getId()));
+        $this->render('cards',array('cards'=>$cards));
+    }
+    public function actionCardupdate()
+    {
+        $model = new CardForm;
+        if (isset($_POST['ajax'])) {
+            echo CActiveForm::validate($model);
+            die();
+        }
+        if (isset($_POST['CardForm'])) {
+            $model->attributes = $_POST['CardForm'];
+            $model->save();
+        }
+        $this->render('cardupdate');
     }
 
 

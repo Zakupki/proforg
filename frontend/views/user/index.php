@@ -8,14 +8,16 @@
                 </div>
             </div>
             <div class="c side wallet">
+                <? if(isset($card)){?>
                 <div class="arrowlabel-r gray">Ваш карточный счёт</div>
-                <div class="name"><?=$user->last_name;?> <?=$user->first_name;?> <?=$user->name;?></div>
+                <div class="name"><?=$card->last_name;?> <?=$card->first_name;?> <?=$card->name;?></div>
                 <div class="cc">
-                    <span class="ccnum">3456</span>
+                    <span class="ccnum"><?=substr($card->number, -4);?></span>
                 </div>
+                <?}?>
                 <div class="actions">
-                    <a class="btn" href="#">Мои карты</a>
-                    <a class="btn plus" href="#">+</a>
+                    <a class="btn" href="/user/cards/">Мои карты</a>
+                    <a class="btn plus" href="/user/cardupdate/">+</a>
                 </div>
             </div>
         </div>

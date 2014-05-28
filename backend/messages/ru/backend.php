@@ -39,6 +39,8 @@ return array (
     'Cannot resolve site url' => 'Не могу определить ссылку сайта',
     'Category' => 'Категория',
     'Catalog' => 'Каталог',
+    'Card' => 'Карта',
+    'Cards' => 'Карты',
     'Code' => 'Код',
     'Color' => 'Цвет',
     'Common' => 'Основное',
