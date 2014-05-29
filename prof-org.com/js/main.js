@@ -278,6 +278,10 @@ $.fn.myForm = function(){
 		$form.validate(validationOptions);
 	}
 
+	if($form.find('a.submit').length && !$form.find('input[type=submit]').length){
+		$form.append('<input type="submit" class="visuallyhidden">');
+	}
+
 	if(!$dom.html.hasClass('form-events')){
 		$dom.html.on('click focus', 'input.disabled', function(e){
 			$(this).blur();
@@ -341,12 +345,24 @@ $(function(){
 				$restInput = $root.find('.rest-input'),
 				$restSpan = $root.find('.rest .value'),
 				available = $root.find('.available-input').val(),
-				initValue = Math.floor(available/10),
+				balance = parseFloat($root.find('.balance-input').val()),
+				salary = parseFloat($root.find('.salary-input').val()),
+				percentfee = parseFloat($root.find('.percentfee-input').val()),
+				percentcredit = parseFloat($root.find('.percentcredit-input').val()),
+				days = parseFloat($root.find('.days-input').val()),
+				initValue = Math.floor(balance),
+				maxValue,
+				maxNoCredit,
 				sumValue;
+
+		maxValue = available - available * percentfee / 100 - salary * days * percentcredit / 100;
+		maxNoCredit = balance * (100 - percentfee) / 100;
+		log(available * percentfee / 100, salary * days * percentcredit / 100)
+
 		$slider.slider({
 			min: 1,
 			step: 1,
-			max: Math.floor(available),
+			max: Math.floor(maxValue),
 			value: initValue,
 			create: function(event, ui){
 				$slider.append('<div class="ui-slider-range" />');
@@ -369,7 +385,7 @@ $(function(){
 
 		$sumInput.bind('change keyup', function(){
 			var val = $sumInput.val() * 1;
-			if(val > available){
+			if(val > maxValue){
 				$sumInput.val(sumValue);
 				return false;
 			}
@@ -380,8 +396,13 @@ $(function(){
 
 		function calc(value){
 			sumValue = value;
-			var rest = available-value;
+			var fee = value <= maxNoCredit ?
+									value * percentfee / 100 : 
+									value * percentfee / 100 + (value - balance) * (days * percentcredit) / 100,
+					rest = available - value - fee;
 			$sumInput.val(value);
+			$feeInput.val(moneyFormat(fee));
+			$feeSpan.text(moneyFormat(fee))
 			$restInput.val(moneyFormat(rest));
 			$restSpan.text(moneyFormat(rest));
 		}

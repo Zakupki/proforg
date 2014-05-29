@@ -35,6 +35,11 @@
                 </div>
                 <div class="c side">
                     <input type="hidden" class="available-input" name="RequestForm[available]" value="<?=$balance['balance']+$user->salary;?>">
+                    <input type="hidden" class="balance-input" name="RequestForm[balance]" value="<?=$balance['balance'];?>">
+                    <input type="hidden" class="salary-input" name="RequestForm[salary]" value="<?=$user->salary;?>">
+                    <input type="hidden" class="days-input" name="RequestForm[days]" value="25">
+                    <input type="hidden" class="percentfee-input" name="RequestForm[percentfee]" value="3">
+                    <input type="hidden" class="percentcredit-input" name="RequestForm[percentcredit]" value="0.3">
                     <div class="sum-area">
                         <input type="text" name="RequestForm[value]" value="" placeholder="0">
                         <span class="units">грн</span>
