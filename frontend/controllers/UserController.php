@@ -15,6 +15,7 @@ class UserController extends FrontController
 
        $card=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId()));
        $user=User::model()->findByPk(yii::app()->user->getId());
+       print_r($user->salary);
        $balance=User::model()->getBalance(yii::app()->user->getId());
        $this->render('index',array('user'=>$user,'card'=>$card,'balance'=>$balance));
     }
