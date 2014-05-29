@@ -357,7 +357,6 @@ $(function(){
 
 		maxValue = available - available * percentfee / 100 - salary * days * percentcredit / 100;
 		maxNoCredit = balance * (100 - percentfee) / 100;
-		log(available * percentfee / 100, salary * days * percentcredit / 100)
 
 		$slider.slider({
 			min: 1,
@@ -367,18 +366,18 @@ $(function(){
 			create: function(event, ui){
 				$slider.append('<div class="ui-slider-range" />');
 				var $handle = $slider.find('.ui-slider-handle');
-				$slider.find('.ui-slider-range').width($handle.offset().left);
+				$slider.find('.ui-slider-range').css({width: (100 * initValue/maxValue) + '%'});
 				calc(initValue);
 			},
 			slide: function(event,ui){
-				$slider.find('.ui-slider-range').width($(ui.handle).offset().left);
+				$slider.find('.ui-slider-range').css({width: (100 * ui.value/maxValue) + '%'});
 				calc(ui.value);
 			},
 			change: function(event, ui){
-				$slider.find('.ui-slider-range').width($(ui.handle).offset().left);
+				$slider.find('.ui-slider-range').css({width: (100 * ui.value/maxValue) + '%'});
 			},
 			stop: function(event, ui){
-				$slider.find('.ui-slider-range').width($(ui.handle).offset().left);
+				$slider.find('.ui-slider-range').css({width: (100 * ui.value/maxValue) + '%'});
 				calc(ui.value);
 			}			
 		});
