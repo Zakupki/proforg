@@ -12,8 +12,11 @@ class UserController extends FrontController
 
     public function actionIndex()
     {
+
        $card=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId()));
        $user=User::model()->findByPk(yii::app()->user->getId());
+       $balance=User::model()->getBalance(yii::app()->user->getId());
+       print_r($balance);
        $this->render('index',array('user'=>$user,'card'=>$card));
     }
     public function actionCards()

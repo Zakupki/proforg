@@ -34,8 +34,8 @@ $this->breadcrumbs = array(
             ),
             array(
                 'name' => 'user_id',
-                'value' => '$data->user ? $data->user->title : null',
-                'filter' => CHtml::listData(User::model()->findAll(), 'id', 'title'),
+                'value' => '$data->user ? $data->user->email : null',
+                'filter' => CHtml::listData(User::model()->findAll(), 'id', 'email'),
             ),
             'date_create',
             'status',
