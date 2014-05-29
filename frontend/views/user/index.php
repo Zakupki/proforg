@@ -2,7 +2,7 @@
         <div class="cw clearfix">
             <div class="c main">
                 <div class="arrowlabel-l">Доступно (грн)</div>
-                <div class="bignum">3045.67</div>
+                <div class="bignum"><?=$balance['balance'];?></div>
                 <div class="actions">
                     <a class="btn" href="#">Подробнее</a>
                 </div>
@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="c side">
-                    <input type="hidden" class="available-input" name="RequestForm[available]" value="3045.67">
+                    <input type="hidden" class="available-input" name="RequestForm[available]" value="<?=$balance['balance'];?>">
                     <div class="sum-area">
                         <input type="text" name="RequestForm[value]" value="" placeholder="0">
                         <span class="units">грн</span>
