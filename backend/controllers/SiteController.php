@@ -4,7 +4,7 @@ class SiteController extends BackController
 {
     public function actionAdmin()
     {
-        $this->redirect(array('/purchase'));
+        $this->redirect(array('/request'));
     }
 
     /**
@@ -127,7 +127,7 @@ class SiteController extends BackController
         app()->db->createCommand('SET AUTOCOMMIT=1')->execute();
     }
 
-    public function actionPurgeCache()
+    public function actionpurchase()
     {
         if(Yii::app()->cache)
             Yii::app()->cache->flush();
