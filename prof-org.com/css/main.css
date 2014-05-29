@@ -836,6 +836,10 @@ a.help{
 	line-height: 60px;
 }
 
+.withdraw-form a.help{
+	float: right;
+	margin: 13px 0 0 6px;
+}
 
 .data-table{
 	width: 100%;
@@ -1032,6 +1036,31 @@ label{
 	background: url(../img/icon-check-red-big.png) no-repeat center center;
 }
 
+.cards-form .prettyCheckbox{
+	display: block;
+	float: right;
+}
+
+.cards-form .prettyCheckbox .holder{
+	display: block;
+	float: right;
+	width: 45px;
+	height: 45px;
+	cursor: pointer;
+}
+
+.cards-form .prettyCheckbox.checked .holder{
+	background: url(../img/icon-check-red-big.png) no-repeat center center;
+}
+
+
+.actions.delete{
+	display: none;
+}
+
+.btn.disabled{
+	cursor: default !important;
+}
 
 /* ==========================================================================
    Media Queries

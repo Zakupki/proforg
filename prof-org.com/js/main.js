@@ -322,6 +322,10 @@ $.fn.loginForm = function(){
 	});
 }
 
+function moneyFormat(val){
+	return val.toFixed(2);
+}
+
 $(function(){
 
 	doForms();
@@ -331,20 +335,31 @@ $(function(){
 	$('.withdraw-form').each(function(){
 		var $root = $(this),
 				$slider = $root.find('.slider'),
-				$sumInput = $root.find('.sum-area input');
+				$sumInput = $root.find('.sum-area input'),
+				$feeInput = $root.find('.fee-input'),
+				$feeSpan = $root.find('.fee .value'),
+				$restInput = $root.find('.rest-input'),
+				$restSpan = $root.find('.rest .value'),
+				available = $root.find('.available-input').val(),
+				initValue = Math.floor(available/10),
+				sumValue;
 		$slider.slider({
 			min: 1,
 			step: 1,
-			max: 1000,
-			value: 100,
+			max: Math.floor(available),
+			value: initValue,
 			create: function(event, ui){
 				$slider.append('<div class="ui-slider-range" />');
 				var $handle = $slider.find('.ui-slider-handle');
 				$slider.find('.ui-slider-range').width($handle.offset().left);
+				calc(initValue);
 			},
 			slide: function(event,ui){
 				$slider.find('.ui-slider-range').width($(ui.handle).offset().left);
 				calc(ui.value);
+			},
+			change: function(event, ui){
+				$slider.find('.ui-slider-range').width($(ui.handle).offset().left);
 			},
 			stop: function(event, ui){
 				$slider.find('.ui-slider-range').width($(ui.handle).offset().left);
@@ -352,9 +367,47 @@ $(function(){
 			}			
 		});
 
+		$sumInput.bind('change keyup', function(){
+			var val = $sumInput.val() * 1;
+			if(val > available){
+				$sumInput.val(sumValue);
+				return false;
+			}
+			sumValue = val;
+			$slider.slider('value', val);
+			calc(val);
+		});
+
 		function calc(value){
+			sumValue = value;
+			var rest = available-value;
 			$sumInput.val(value);
+			$restInput.val(moneyFormat(rest));
+			$restSpan.text(moneyFormat(rest));
 		}
+	});
+
+	$('.cards-form').each(function(){
+		var $root = $(this);
+
+		$root.find('input[type=radio]').prettyCheckboxes();
+
+		$root.find('.btn.cross').bind('click', function(){
+			if($(this).hasClass('disabled')) return false;
+			$root.find('.btn.cross').addClass('disabled');
+			$(this).addClass('red');
+			$root.find('.actions.default').hide();
+			$root.find('.actions.delete').show();
+			$root.find('.bottom-actions').hide();
+		});
+
+		$root.find('.actions.delete .btn').bind('click', function(){
+			$root.find('.btn.cross').removeClass('disabled red');
+			$root.find('.actions.delete').hide();
+			$root.find('.actions.default').show();
+			$root.find('.bottom-actions').show();
+		});
+
 	});
 
 });
