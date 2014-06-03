@@ -344,6 +344,8 @@ $(function(){
 				$feeSpan = $root.find('.fee .value'),
 				$restInput = $root.find('.rest-input'),
 				$restSpan = $root.find('.rest .value'),
+				$usersumInput = $root.find('.usersum-input'),
+				$usersumSpan = $root.find('.usersum .value'),
 				available = $root.find('.available-input').val(),
 				balance = parseFloat($root.find('.balance-input').val()),
 				salary = parseFloat($root.find('.salary-input').val()),
@@ -355,8 +357,10 @@ $(function(){
 				maxNoCredit,
 				sumValue;
 
-		maxValue = available - available * percentfee / 100 - salary * days * percentcredit / 100;
-		maxNoCredit = balance * (100 - percentfee) / 100;
+		//maxValue = available - available * percentfee / 100 - salary * days * percentcredit / 100;
+		//maxNoCredit = balance * (100 - percentfee) / 100;
+		maxValue = available;
+		maxNoCredit = balance;
 
 		$slider.slider({
 			min: 1,
@@ -393,17 +397,23 @@ $(function(){
 			calc(val);
 		});
 
+		//fee = (value - fee) * percentfee / 100;
+		//fee = value * percentfee / (100 + percentfee);
+
 		function calc(value){
 			sumValue = value;
 			var fee = value <= maxNoCredit ?
-									value * percentfee / 100 : 
-									value * percentfee / 100 + (value - balance) * (days * percentcredit) / 100,
-					rest = available - value - fee;
+									value * percentfee / (100 + percentfee) : 
+									value * percentfee / (100 + percentfee) + (value - balance) * (days * percentcredit) / (100 + percentfee),
+					rest = available - value,
+					usersum = value - fee;
 			$sumInput.val(value);
 			$feeInput.val(moneyFormat(fee));
 			$feeSpan.text(moneyFormat(fee))
 			$restInput.val(moneyFormat(rest));
 			$restSpan.text(moneyFormat(rest));
+			$usersumInput.val(moneyFormat(usersum));
+			$usersumSpan.text(moneyFormat(usersum));
 		}
 	});
 

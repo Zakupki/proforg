@@ -47,14 +47,20 @@
                     <div class="row fee clearfix">
                         <div class="c label">Комиссия</div>
                         <a class="help" href="#"></a>
-                        <div class="c value">-23</div>
-                        <input type="hidden" class="fee-input" name="RequestForm[fee]" value="-23">
+                        <div class="c value"></div>
+                        <input type="hidden" class="fee-input" name="RequestForm[fee]" value="">
                     </div>
                     <div class="row rest clearfix">
                         <div class="c label">Остаток</div>
                         <a class="help" href="#"></a>
-                        <div class="c value">3456</div>
-                        <input type="hidden" class="rest-input" name="RequestForm[rest]" value="3456">
+                        <div class="c value"></div>
+                        <input type="hidden" class="rest-input" name="RequestForm[rest]" value="">
+                    </div>
+                    <div class="row usersum clearfix">
+                        <div class="c label">Вы получите</div>
+                        <a class="help" href="#"></a>
+                        <div class="c value"></div>
+                        <input type="hidden" class="usersum-input" name="RequestForm[usersum]" value="">
                     </div>
                     <div class="actions">
                         <a class="btn submit" href="#">Получить на карту</a>
