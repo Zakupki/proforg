@@ -28,12 +28,14 @@ class UserController extends FrontController
     {
         if(isset($_POST['delete'])){
             $card=Card::model()->deleteByPk($_POST['delete']);
+            echo CJSON::encode(array('error'=>false,'status'=>'Ваша карта успешно удалена'));
             return;
         }
         if(isset($_POST['major'])){
             $card=Card::model()->findByPk($_POST['major']);
             $card->major=1;
             $card->save();
+            echo CJSON::encode(array('error'=>false,'status'=>'Вы успешно изменили основную карту'));
             return;
         }
 
