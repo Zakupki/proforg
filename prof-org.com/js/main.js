@@ -512,9 +512,22 @@ $(function(){
 	});
 
 	$('.cards-form').each(function(){
-		var $root = $(this);
+		var $root = $(this),
+				$form = $root.find('form').eq(0);
 
-		$root.find('input[type=radio]').prettyCheckboxes();
+		$root.find('input[type=radio]').prettyCheckboxes().bind('change', function(){
+			var $input = $(this);
+			if($input.is(':checked')){
+				var ccid = $input.closest('.cc').find('.cc-id').val();
+				$.ajax({
+					method: 'post',
+					url: $form.attr('action'),
+					data: {
+						major: ccid
+					}
+				});
+			}
+		});
 
 		$root.find('.btn.cross').bind('click', function(){
 			if($(this).hasClass('disabled')) return false;
@@ -526,6 +539,28 @@ $(function(){
 		});
 
 		$root.find('.actions.delete .btn').bind('click', function(){
+			if($(this).hasClass('ok')){
+				var $deletecc = $root.find('.btn.cross.red').closest('.cc'),
+						ccid = $deletecc.find('.cc-id').val();
+				$.ajax({
+					method: 'post',
+					url: $form.attr('action'),
+					data: {
+						delete: ccid
+					},
+					complete: function(data){
+						if(data && data.responseText){
+							data = $.parseJSON(data.responseText);
+							if(data.status){
+								$deletecc.remove();
+								$.alert({
+									content: '<div class="content">'+data.status+'</div>'
+								});
+							}
+						}
+					}
+				});
+			}
 			$root.find('.btn.cross').removeClass('disabled red');
 			$root.find('.actions.delete').hide();
 			$root.find('.actions.default').show();
