@@ -22,7 +22,7 @@ class CardForm extends CFormModel
     public function rules()
     {
         return array(
-            array('user_id, first_name, last_name, name, number, expire,user_id', 'required'),
+            array('user_id, first_name, last_name, name, number, user_id', 'required'),
             array('user_id, number', 'numerical', 'integerOnly' => true),
             array('user_id, first_name, last_name, name, number, expire,user_id', 'safe'),
             array('user_id', 'exist', 'className' => 'User', 'attributeName' => 'id'),
