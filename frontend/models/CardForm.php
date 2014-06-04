@@ -40,6 +40,9 @@ class CardForm extends CFormModel
         $company = new Card();
         $company->attributes=$this->attributes;
         $company->date_create=new CDbExpression('NOW()');
+        $major=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId(),'major'=>1));
+        if(!$major)
+            $company->major=1;
         if($company->validate()){
             $company->save();
         }

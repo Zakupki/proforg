@@ -28,6 +28,14 @@ class UserController extends FrontController
     {
         if(isset($_POST['delete'])){
             $card=Card::model()->deleteByPk($_POST['delete']);
+            $major=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId(),'major'=>1));
+            if(!$major){
+                $oldcard=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId()));
+                if($oldcard){
+                    $oldcard->major=1;
+                    $oldcard->save();
+                }
+            }
             echo CJSON::encode(array('error'=>false,'status'=>'Ваша карта успешно удалена'));
             return;
         }
