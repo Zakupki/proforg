@@ -111,7 +111,9 @@ border-radius: 3px;
 .ui-slider-vertical .ui-slider-range-max { top: 0; }
 
 
-
+.ui-slider-disabled .ui-slider-handle{
+	border-color: #ddd;
+}
 
 /* ==========================================================================
 	 ikSelect
@@ -535,6 +537,78 @@ border-radius: 3px;
 
 
 
+
+
+
+.popup-src{
+	border-radius: 5px;
+	display: none;
+}
+
+.popup-src .wrap{
+	background: #F1F3F5;
+	border-radius: 5px;
+	padding: 20px;
+	position: relative;
+	min-width: 360px;
+}
+
+
+.popup-close{
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	width: 10px;
+	height: 12px;
+	background: url(../img/icon-cross-black.png) no-repeat center center;
+	cursor: pointer;
+}
+
+.popup-src .header{
+	font-size: 24px;
+	color: #67B56E;
+	line-height: 1;
+	margin-right: 15px;
+	margin-bottom: 20px;
+}
+
+.popup-src .actions .btn{
+	font-size: 18px;
+	height: 40px;
+	line-height: 40px;
+	padding: 0 20px;
+}
+
+.popup-src .actions .btn .label{
+	padding: 0;
+}
+
+.alert-popup,
+.confirm-popup{
+	width: 400px;
+}
+
+.alert-popup .content,
+.confirm-popup .content{
+	padding: 20px;
+	text-align: center;
+}
+
+.popup-src .content.big{
+	font-size: 20px;
+}
+
+.alert-popup .actions,
+.confirm-popup .actions{
+	text-align: right;
+}
+
+.confirm-popup .actions .btn.cancel{
+	float: left;
+}
+
+
+
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
@@ -776,6 +850,10 @@ a.btn.red{
 	width: 200px;
 }
 
+.sum-area input[disabled]{
+	opacity: 0.1;
+}
+
 .sum-area .units{
 	display: inline-block;
 	vertical-align: top;
@@ -834,6 +912,12 @@ a.help{
 	display: block;
 	text-align: center;
 	line-height: 60px;
+}
+
+.withdraw-form .btn.submit.disabled{
+	opacity: 0.1;
+	color: #888;
+	cursor: default;
 }
 
 .withdraw-form a.help{

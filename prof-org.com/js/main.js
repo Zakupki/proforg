@@ -23,6 +23,85 @@ var $dom = {
 
 
 
+
+$.confirm = function(o){
+	var o = $.extend(true, {
+		content: '',
+		ok: null,
+		cancel: null
+	}, o);
+	$('<div class="popup-src confirm-popup"><div class="wrap">'+o.content+'<div class="actions"><a class="btn red cancel">Отмена</a><a class="btn green ok">OK</a></div><a class="popup-close"></a></div></div>').bPopup($.extend(true, bPopupOptions, {
+		onOpen: function(){
+			var $popup = this;
+			$popup.find('.btn.ok').bind('click', function(){
+				$popup.bPopup().close();
+				if(typeof o.ok == 'function'){
+					o.ok.call(this);
+				}
+			});
+			$popup.find('.btn.cancel').bind('click', function(){
+				$popup.bPopup().close();
+				if(typeof o.cancel == 'function'){
+					o.cancel.call(this);
+				}
+			});
+		}
+	}));
+}
+
+$.alert = function(o){
+	var o = $.extend(true, {
+		content: '',
+		ok: null
+	}, o);
+	$('<div class="popup-src alert-popup"><div class="wrap">'+o.content+'<div class="actions"><a class="btn green ok">OK</a></div><a class="popup-close"></a></div></div>').bPopup($.extend(true, bPopupOptions, {
+		onOpen: function(){
+			var $popup = this;
+			$popup.find('.btn.ok').bind('click', function(){
+				$popup.bPopup().close();
+				if(typeof o.ok == 'function'){
+					o.ok.call(this);
+				}
+			});
+		},
+		onClose: function(){
+			if(typeof o.ok == 'function'){
+				o.ok.call(this);
+			}
+		}
+	}));
+}
+
+$.ajaxPopup = function(o){
+	var o = $.extend(true, {
+		link: null,
+		url: '',
+		data: undefined,
+		load: null,
+		useNanoScroll: undefined
+	}, o)
+	$.ajax({
+		method: 'post',
+		url: o.url,
+		data: o.data,
+		complete: function(data){
+			if(data && data.responseText){
+				$(data.responseText).bPopup($.extend(true, bPopupOptions, {
+					useNanoScroll: o.useNanoScroll,
+					callback: function(){
+						if(typeof o.load == 'function'){
+							o.load.call(this, o.link);
+						}
+					}
+				}));
+
+			}
+		}
+	});
+}
+
+
+
 //style scrollbars (for select box):
 $.fn.doNanoScroll = function(){
 		return this.each(function(){
@@ -352,7 +431,7 @@ $(function(){
 				percentfee = parseFloat($root.find('.percentfee-input').val()),
 				percentcredit = parseFloat($root.find('.percentcredit-input').val()),
 				days = parseFloat($root.find('.days-input').val()),
-				initValue = Math.floor(balance),
+				initValue = Math.floor($sumInput.val()),
 				maxValue,
 				maxNoCredit,
 				sumValue;
@@ -361,6 +440,12 @@ $(function(){
 		//maxNoCredit = balance * (100 - percentfee) / 100;
 		maxValue = available;
 		maxNoCredit = balance;
+
+		if(window.location.href.indexOf('success=1') !== -1){
+			$.alert({
+				content: '<div class="content big">Операция выполнена успешно.</div>'
+			});
+		}
 
 		$slider.slider({
 			min: 1,
@@ -397,8 +482,12 @@ $(function(){
 			calc(val);
 		});
 
-		//fee = (value - fee) * percentfee / 100;
-		//fee = value * percentfee / (100 + percentfee);
+		if(Math.floor(available) == 0){
+			calc(0);
+			$sumInput.prop('disabled', true);
+			$slider.slider('disable');
+			$root.find('.btn.submit').addClass('disabled');
+		}
 
 		function calc(value){
 			sumValue = value;
@@ -407,6 +496,11 @@ $(function(){
 									value * percentfee / (100 + percentfee) + (value - balance) * (days * percentcredit) / (100 + percentfee),
 					rest = available - value,
 					usersum = value - fee;
+			if(value == 0){
+				fee = 0;
+				rest = 0;
+				usersum = 0;
+			}
 			$sumInput.val(value);
 			$feeInput.val(moneyFormat(fee));
 			$feeSpan.text(moneyFormat(fee))
