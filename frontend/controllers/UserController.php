@@ -15,8 +15,9 @@ class UserController extends FrontController
 
        $card=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId()));
        $user=User::model()->findByPk(yii::app()->user->getId());
+       $company=Company::model()->findByPk($user->employer_id);
        $balance=User::model()->getBalance(yii::app()->user->getId());
-       $this->render('index',array('user'=>$user,'card'=>$card,'balance'=>$balance));
+       $this->render('index',array('user'=>$user,'card'=>$card,'balance'=>$balance,'company'=>$company));
     }
     public function actionCards()
     {
@@ -35,6 +36,19 @@ class UserController extends FrontController
             $model->save();
         }
         $this->render('cardupdate');
+    }
+    public function actionRequestupdate()
+    {
+        $model = new RequestForm;
+        if (isset($_POST['ajax'])) {
+            echo CActiveForm::validate($model);
+            die();
+        }
+        if (isset($_POST['RequestForm'])) {
+            $model->attributes = $_POST['RequestForm'];
+            $model->save();
+        }
+        $this->redirect('/user/');
     }
 
 

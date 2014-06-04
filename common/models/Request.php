@@ -54,14 +54,15 @@ class Request extends BaseActiveRecord
     public function rules()
     {
         return array_merge(parent::rules(), array(
-            array('company_id, finance_id, user_id, date_create, value, available, left', 'required'),
+            array('company_id, finance_id, user_id, card_id, date_create, value, available, left, commission', 'required'),
             array('company_id, finance_id, user_id, status, sort', 'numerical', 'integerOnly' => true),
-            array('value, available, left', 'numerical'),
+            array('value, available, left, commission', 'numerical'),
             array('company_id', 'exist', 'className' => 'Company', 'attributeName' => 'id'),
             array('finance_id', 'exist', 'className' => 'Finance', 'attributeName' => 'id'),
             array('user_id', 'exist', 'className' => 'User', 'attributeName' => 'id'),
+            array('card_id', 'exist', 'className' => 'Card', 'attributeName' => 'id'),
         
-            array('id, company_id, finance_id, user_id, date_create, status, sort, value, available, left', 'safe', 'on' => 'search'),
+            array('id, company_id, finance_id, user_id, date_create, status, sort, value, available, left, commission', 'safe', 'on' => 'search'),
         ));
     }
 
@@ -74,6 +75,7 @@ class Request extends BaseActiveRecord
             'finance' => array(self::BELONGS_TO, 'Finance', 'finance_id'),
             'user' => array(self::BELONGS_TO, 'User', 'user_id'),
             'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
+            'card' => array(self::BELONGS_TO, 'Card', 'card_id'),
         );
     }
 

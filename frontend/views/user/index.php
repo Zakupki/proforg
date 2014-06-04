@@ -24,7 +24,7 @@
     </div>
     <div class="content gray">
         <div class="cw clearfix">
-            <form class="withdraw-form serverside" method="post" action="/user/updaterequest" name="request-form">
+            <form class="withdraw-form serverside" method="post" action="/user/requestupdate" name="request-form">
                 <div class="c main">
                     <div class="slider"></div>
                     <div class="text">Он уже не мог снова сесть за бумаги от волнения и ожидания и стал бродить по кабинету из угла в угол. Князь остановился перевести дух. Он ужасно скоро говорил. Он был бледен и задыхался. Все переглядывались; но наконец старичок откровенно рассмеялся. Князь N. вынул лорнет и, не отрываясь, рассматривал князя. Немчик-поэт выполз из угла и подвинулся поближе к столу, улыбаясь зловещею улыбкой.</div>
@@ -37,6 +37,9 @@
                     <input type="hidden" class="available-input" name="RequestForm[available]" value="<?=$balance['balance']+$user->salary;?>">
                     <input type="hidden" class="balance-input" name="RequestForm[balance]" value="<?=$balance['balance'];?>">
                     <input type="hidden" class="salary-input" name="RequestForm[salary]" value="<?=$user->salary;?>">
+                    <input type="hidden" class="salary-input" name="RequestForm[company_id]" value="<?=$company->id;?>">
+                    <input type="hidden" class="salary-input" name="RequestForm[card_id]" value="<?=$card->id;?>">
+                    <input type="hidden" class="salary-input" name="RequestForm[finance_id]" value="<?=$company->finance_id;?>">
                     <input type="hidden" class="days-input" name="RequestForm[days]" value="25">
                     <input type="hidden" class="percentfee-input" name="RequestForm[percentfee]" value="3">
                     <input type="hidden" class="percentcredit-input" name="RequestForm[percentcredit]" value="0.3">
@@ -48,13 +51,13 @@
                         <div class="c label">Комиссия</div>
                         <a class="help" href="#"></a>
                         <div class="c value"></div>
-                        <input type="hidden" class="fee-input" name="RequestForm[fee]" value="">
+                        <input type="hidden" class="fee-input" name="RequestForm[commission]" value="">
                     </div>
                     <div class="row rest clearfix">
                         <div class="c label">Остаток</div>
                         <a class="help" href="#"></a>
                         <div class="c value"></div>
-                        <input type="hidden" class="rest-input" name="RequestForm[rest]" value="">
+                        <input type="hidden" class="rest-input" name="RequestForm[left]" value="">
                     </div>
                     <div class="row usersum clearfix">
                         <div class="c label">Вы получите</div>
