@@ -24,7 +24,7 @@
     </div>
     <div class="content gray">
         <div class="cw clearfix">
-            <form class="withdraw-form serverside" name="request-form">
+            <form class="withdraw-form serverside" method="post" action="/user/updaterequest" name="request-form">
                 <div class="c main">
                     <div class="slider"></div>
                     <div class="text">Он уже не мог снова сесть за бумаги от волнения и ожидания и стал бродить по кабинету из угла в угол. Князь остановился перевести дух. Он ужасно скоро говорил. Он был бледен и задыхался. Все переглядывались; но наконец старичок откровенно рассмеялся. Князь N. вынул лорнет и, не отрываясь, рассматривал князя. Немчик-поэт выполз из угла и подвинулся поближе к столу, улыбаясь зловещею улыбкой.</div>
