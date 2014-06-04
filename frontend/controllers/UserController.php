@@ -48,7 +48,7 @@ class UserController extends FrontController
             $model->attributes = $_POST['RequestForm'];
             $model->save();
         }
-        $this->redirect('/user/');
+        $this->redirect('/user/?success=1');
     }
 
 
