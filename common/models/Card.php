@@ -53,7 +53,7 @@ class Card extends BaseActiveRecord
     {
         return array_merge(parent::rules(), array(
             array('user_id, first_name, last_name, name, number, expire', 'required'),
-            array('user_id, number, ccv, sort, status', 'numerical', 'integerOnly' => true),
+            array('user_id, number, ccv, sort, status, major', 'numerical', 'integerOnly' => true),
             array('first_name, last_name, name', 'length', 'max' => 255),
             array('user_id', 'exist', 'className' => 'User', 'attributeName' => 'id'),
         

@@ -26,6 +26,18 @@ class UserController extends FrontController
     }
     public function actionCardupdate()
     {
+        if(isset($_POST['delete'])){
+            $card=Card::model()->deleteByPk($_POST['delete']);
+            return;
+        }
+        if(isset($_POST['major'])){
+            $card=Card::model()->findByPk($_POST['major']);
+            $card->major=1;
+            $card->save();
+            return;
+        }
+
+
         $model = new CardForm;
         if (isset($_POST['ajax'])) {
             echo CActiveForm::validate($model);
@@ -35,7 +47,7 @@ class UserController extends FrontController
             $model->attributes = $_POST['CardForm'];
             $model->save();
         }
-        $this->render('cardupdate');
+        $this->redirect('/user/cards');
     }
     public function actionRequestupdate()
     {
