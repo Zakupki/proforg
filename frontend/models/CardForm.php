@@ -24,8 +24,10 @@ class CardForm extends CFormModel
         return array(
             array('user_id, first_name, last_name, name, number, user_id', 'required'),
             array('user_id, number', 'numerical', 'integerOnly' => true),
+            array('number','length','is'=>16,'message'=>'123'),
             array('user_id, first_name, last_name, name, number, expire,user_id', 'safe'),
             array('user_id', 'exist', 'className' => 'User', 'attributeName' => 'id'),
+
         );
     }
 
