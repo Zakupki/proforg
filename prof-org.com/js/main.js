@@ -422,11 +422,11 @@ $(function(){
 				$feeInput = $root.find('.fee-input'),
 				$feeSpan = $root.find('.fee .value'),
 				$restInput = $root.find('.rest-input'),
-				$restSpan = $root.find('.rest .value'),
+				$restSpan = $('.bignum.available-display'),
 				$usersumInput = $root.find('.usersum-input'),
 				$usersumSpan = $root.find('.usersum .value'),
 				available = $root.find('.available-input').val(),
-				balance = parseFloat($root.find('.balance-input').val()),
+				balance = parseFloat($root.find('.balance-input').val()) || 0,
 				salary = parseFloat($root.find('.salary-input').val()),
 				percentfee = parseFloat($root.find('.percentfee-input').val()),
 				percentcredit = parseFloat($root.find('.percentcredit-input').val()),
@@ -436,8 +436,6 @@ $(function(){
 				maxNoCredit,
 				sumValue;
 
-		//maxValue = available - available * percentfee / 100 - salary * days * percentcredit / 100;
-		//maxNoCredit = balance * (100 - percentfee) / 100;
 		maxValue = available;
 		maxNoCredit = balance;
 
@@ -482,24 +480,29 @@ $(function(){
 			calc(val);
 		});
 
-		if(Math.floor(available) == 0){
-			calc(0);
+		if(Math.floor(available) < 1){
+			calc(-1);
 			$sumInput.prop('disabled', true);
 			$slider.slider('disable');
-			$root.find('.btn.submit').addClass('disabled');
 		}
 
 		function calc(value){
 			sumValue = value;
+			log(value, percentfee, balance, days, percentcredit);
 			var fee = value <= maxNoCredit ?
 									value * percentfee / (100 + percentfee) : 
 									value * percentfee / (100 + percentfee) + (value - balance) * (days * percentcredit) / (100 + percentfee),
 					rest = available - value,
 					usersum = value - fee;
-			if(value == 0){
+			if(value < 0){
 				fee = 0;
 				rest = 0;
 				usersum = 0;
+			}
+			if(value <= 0){
+				$root.find('.btn.submit').addClass('disabled');
+			} else {
+				$root.find('.btn.submit').removeClass('disabled');
 			}
 			$sumInput.val(value);
 			$feeInput.val(moneyFormat(fee));

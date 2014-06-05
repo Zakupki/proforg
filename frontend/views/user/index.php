@@ -2,7 +2,7 @@
         <div class="cw clearfix">
             <div class="c main">
                 <div class="arrowlabel-l">Доступно (грн)</div>
-                <div class="bignum"><?=$balance['balance']+$user->salary;?></div>
+                <div class="bignum available-display"><?=$balance['balance']+$user->salary;?></div>
                 <div class="actions">
                     <a class="btn" href="#">Подробнее</a>
                 </div>
@@ -35,6 +35,7 @@
                 </div>
                 <div class="c side">
                     <input type="hidden" class="available-input" name="RequestForm[available]" value="<?=$balance['balance']+$user->salary;?>">
+                    <input type="hidden" class="rest-input" name="RequestForm[left]" value="">
                     <input type="hidden" class="balance-input" name="RequestForm[balance]" value="<?=$balance['balance'];?>">
                     <input type="hidden" class="salary-input" name="RequestForm[salary]" value="<?=$user->salary;?>">
                     <input type="hidden" class="salary-input" name="RequestForm[company_id]" value="<?=$company->id;?>">
@@ -54,12 +55,6 @@
                         <a class="help" href="#"></a>
                         <div class="c value"></div>
                         <input type="hidden" class="fee-input" name="RequestForm[commission]" value="">
-                    </div>
-                    <div class="row rest clearfix">
-                        <div class="c label">Остаток</div>
-                        <a class="help" href="#"></a>
-                        <div class="c value"></div>
-                        <input type="hidden" class="rest-input" name="RequestForm[left]" value="">
                     </div>
                     <div class="row usersum clearfix">
                         <div class="c label">Вы получите</div>
