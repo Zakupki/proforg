@@ -412,29 +412,34 @@ function moneyFormat(val){
 $.fn.dataTable = function(){
 	return this.each(function(){
 		var $root = $(this);
-		$root.find('.btn.remove').bind('click', function(e){
+		$root.find('.btn:not(.disabled)').bind('click', function(e){
 			e.preventDefault();
 			var $el = $(this);
 			if(!$el.data('id')) return;
 			var id = $el.data('id'),
-					url = $el.attr('href');
+					url = $el.data('url'),
+					action = $el.data('action');
 			$.confirm({
-				content: '<div class="content big">Вы правда хотите удалить?</div>',
+				content: '<div class="content big">Вы уверены?</div>',
 				ok: function(){
+					var data = {};
+					data[action] = id;
 					$.ajax({
 						method: 'post',
 						url: url,
-						data: {
-							delete: id
-						},
+						data: data,
 						complete: function(data){
 							if(data && data.responseText){
 								data = $.parseJSON(data.responseText);
 								if(data.status){
 									$.alert({
-										content: '<div class="content">'+data.status+'</div>'
+										content: '<div class="content big">'+data.status+'</div>'
 									});
-									$el.closest('tr').remove();									
+									if(action == 'confirm'){
+										$el.addClass('disabled');
+									} else {
+										$el.closest('tr').remove();									
+									}
 								}
 							}
 						}
