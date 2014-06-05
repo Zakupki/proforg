@@ -27,6 +27,17 @@ class FinanceController extends FrontController
         $companies=Company::model()->findAllByAttributes(array('finance_id'=>$this->userData['finance_id']));
         $this->render('companies',array('companies'=>$companies));
     }
+    public function actionUpdaterequest()
+    {
+        if(isset($_POST['delete'])){
+            echo CJSON::encode(array('error'=>false,'status'=>'Запрос успешно удален'));
+            return;
+        }
+        if(isset($_POST['confirm'])){
+            echo CJSON::encode(array('error'=>false,'status'=>'Запрос успешно подтвержден'));
+            return;
+        }
+    }
 
     public function actionUpdatecompany()
     {
