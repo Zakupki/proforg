@@ -55,7 +55,7 @@ class Request extends BaseActiveRecord
     {
         return array_merge(parent::rules(), array(
             array('company_id, finance_id, user_id, card_id, date_create, value, available, left, commission', 'required'),
-            array('company_id, finance_id, user_id, status, sort', 'numerical', 'integerOnly' => true),
+            array('company_id, finance_id, user_id, status, sort, confirm', 'numerical', 'integerOnly' => true),
             array('value, available, left, commission', 'numerical'),
             array('company_id', 'exist', 'className' => 'Company', 'attributeName' => 'id'),
             array('finance_id', 'exist', 'className' => 'Finance', 'attributeName' => 'id'),
@@ -95,6 +95,7 @@ class Request extends BaseActiveRecord
             'value' => Yii::t('backend', 'Value'),
             'available' => Yii::t('backend', 'Available'),
             'left' => Yii::t('backend', 'Left'),
+            'confirm' => Yii::t('backend', 'Confirm'),
         );
     }
 
@@ -105,10 +106,10 @@ class Request extends BaseActiveRecord
     public function search()
     {
         $criteria = new CDbCriteria;
-
-        		$criteria->compare('t.id',$this->id);
+        $criteria->compare('t.id',$this->id);
 		$criteria->compare('t.company_id',$this->company_id);
 		$criteria->compare('t.finance_id',$this->finance_id);
+        $criteria->compare('t.confirm',$this->confirm);
 		$criteria->compare('t.user_id',$this->user_id);
 		$criteria->compare('t.date_create',$this->date_create,true);
 		$criteria->compare('t.status',$this->status);
