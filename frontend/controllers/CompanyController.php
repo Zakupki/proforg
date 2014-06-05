@@ -28,7 +28,7 @@ class CompanyController extends FrontController
     {
         if(isset($_POST['delete'])){
 
-            //User::model()->deleteByPk($_POST['delete']);
+            User::model()->deleteByPk($_POST['delete']);
             /*$card=Card::model()->deleteByPk($_POST['delete']);
             $major=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId(),'major'=>1));
             if(!$major){
