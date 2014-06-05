@@ -36,7 +36,7 @@
                 <td class="num gray">10200</td>
                 <td class="num gray">10200</td>
                 <td class="num gray">1060200</td>
-                <td class="actions"><a class="btn cross" href="#"></a></td>
+                <td class="actions"><a class="btn cross remove" data-id="<?=$user['id'];?>" href="/company/updateuser"></a></td>
             </tr>
             <?}?>
         </table>

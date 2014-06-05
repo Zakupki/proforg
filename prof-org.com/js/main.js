@@ -409,11 +409,49 @@ function moneyFormat(val){
 	return val.toFixed(2);
 }
 
+$.fn.dataTable = function(){
+	return this.each(function(){
+		var $root = $(this);
+		$root.find('.btn.remove').bind('click', function(e){
+			e.preventDefault();
+			var $el = $(this);
+			if(!$el.data('id')) return;
+			var id = $el.data('id'),
+					url = $el.attr('href');
+			$.confirm({
+				content: '<div class="content big">Вы правда хотите удалить?</div>',
+				ok: function(){
+					$.ajax({
+						method: 'post',
+						url: url,
+						data: {
+							delete: id
+						},
+						complete: function(data){
+							if(data && data.responseText){
+								data = $.parseJSON(data.responseText);
+								if(data.status){
+									$.alert({
+										content: '<div class="content">'+data.status+'</div>'
+									});
+									$el.closest('tr').remove();									
+								}
+							}
+						}
+					});
+				}
+			});
+		});
+	});
+}
+
 $(function(){
 
 	doForms();
 
 	$('.login-form').loginForm();
+
+	$('.data-table').dataTable();
 
 	$('.withdraw-form').each(function(){
 		var $root = $(this),
