@@ -21,7 +21,7 @@
                         <a class="btn ok fr">Удалить карту</a>
                     </div>
                     <div class="bottom-actions">
-                        <a href="#">Вернуться в кабинет</a>
+                        <a href="/user/">Вернуться в кабинет</a>
                     </div>
                 </form>
             </div>
