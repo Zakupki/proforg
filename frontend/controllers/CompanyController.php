@@ -27,6 +27,8 @@ class CompanyController extends FrontController
     public function actionUpdateuser()
     {
         if(isset($_POST['delete'])){
+
+            //User::model()->deleteByPk($_POST['delete']);
             /*$card=Card::model()->deleteByPk($_POST['delete']);
             $major=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId(),'major'=>1));
             if(!$major){
@@ -36,7 +38,7 @@ class CompanyController extends FrontController
                     $oldcard->save();
                 }
             }*/
-            echo CJSON::encode(array('error'=>false,'status'=>'Ваша карта успешно удалена'));
+            echo CJSON::encode(array('error'=>false,'status'=>'Сотрудник успешно удален'));
             return;
         }
 
