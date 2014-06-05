@@ -17,7 +17,6 @@ class CompanyController extends FrontController
         }
 
     }
-
     public function actionIndex()
     {
        $users=array();
