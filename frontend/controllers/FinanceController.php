@@ -34,6 +34,9 @@ class FinanceController extends FrontController
             return;
         }
         if(isset($_POST['confirm'])){
+            $request=Request::model()->findByAttributes(array('id'=>$_POST['confirm']));
+            $request->confirm=1;
+            $request->save();
             echo CJSON::encode(array('error'=>false,'status'=>'Запрос успешно подтвержден'));
             return;
         }

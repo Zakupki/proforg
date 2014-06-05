@@ -127,10 +127,11 @@ class SiteController extends BackController
         app()->db->createCommand('SET AUTOCOMMIT=1')->execute();
     }
 
-    public function actionpurchase()
+    public function actionPurgeCache()
     {
         if(Yii::app()->cache)
             Yii::app()->cache->flush();
+        $this->redirect('/cp');
     }
     
 }
