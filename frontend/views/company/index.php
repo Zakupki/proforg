@@ -32,10 +32,10 @@
                 <td><a href="#"><?=$user['first_name'];?> <?=$user['name'];?> <?=$user['last_name'];?></a></td>
                 <td class="num"><?=$user['salaryday'];?></td>
                 <td class="num"><?=$user['salary'];?></td>
-                <td class="num">10200</td>
-                <td class="num gray">10200</td>
-                <td class="num gray">10200</td>
-                <td class="num gray">1060200</td>
+                <td class="num"><?=$user['balance'];?></td>
+                <td class="num gray">0</td>
+                <td class="num gray">0</td>
+                <td class="num gray"><?=$user['yearsalary'];?></td>
                 <td class="actions"><a class="btn cross" data-id="<?=$user['id'];?>" data-action="delete" data-url="/company/updateuser"></a></td>
             </tr>
             <?}?>
