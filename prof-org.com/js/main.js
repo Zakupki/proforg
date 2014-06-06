@@ -548,7 +548,7 @@ $(function(){
 			} else {
 				$root.find('.btn.submit').removeClass('disabled');
 			}
-			$sumInput.val(value);
+			$sumInput.val(value > 0 ? value : 0);
 			$feeInput.val(moneyFormat(fee));
 			$feeSpan.text(moneyFormat(fee))
 			$restInput.val(moneyFormat(rest));
