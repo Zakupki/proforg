@@ -481,5 +481,27 @@ class User extends BaseActiveRecord
         $result = $command->queryRow();
         return $result;
     }
+    public function getCompanyUsers($employer_id){
+        $connection = Yii::app()->db;
+        $sql = 'SELECT
+                  z_user.id,
+                  z_user.`first_name`,
+                  z_user.`name`,
+                  z_user.`last_name`,
+                  z_user.`salaryday`,
+                  z_user.`salary`,
+                  z_user.`salary`*12 AS yearsalary,
+                  SUM(z_request.`value`) AS balance
+                FROM
+                  z_user
+                LEFT JOIN  z_request
+                  ON z_request.`user_id`=z_user.id
+                WHERE z_user.employer_id=:employer_id
+                GROUP BY z_user.id';
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":employer_id", $employer_id, PDO::PARAM_INT);
+        $result = $command->queryAll();
+        return $result;
+    }
 
 }

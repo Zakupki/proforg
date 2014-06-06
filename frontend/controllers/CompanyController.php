@@ -21,7 +21,7 @@ class CompanyController extends FrontController
     {
        $users=array();
        if(isset($this->userData['company_id']))
-       $users=User::model()->findAllByAttributes(array('employer_id'=>$this->userData['company_id']));
+       $users=User::model()->getCompanyUsers($this->userData['company_id']);
        $this->render('index',array('users'=>$users));
     }
     public function actionUpdateuser()
