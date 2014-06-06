@@ -29,7 +29,7 @@
             <div class="actions mt20 clearfix">
                 <a class="btn fr" href="/finance/updatecompany">Добавить компанию</a>
                 <a class="btn fr" href="/finance/companies">Все компании</a>
-                <a class="btn fr" href="/finance/companies">Внести средства</a>
+                <a class="btn fr" href="/finance/deposit">Внести средства</a>
             </div>
         </div>
     </div>

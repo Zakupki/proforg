@@ -27,6 +27,19 @@ class FinanceController extends FrontController
         $companies=Company::model()->findAllByAttributes(array('finance_id'=>$this->userData['finance_id']));
         $this->render('companies',array('companies'=>$companies));
     }
+    public function actionDeposit()
+    {
+        $model = new RequestForm;
+        if (isset($_POST['ajax'])) {
+            echo CActiveForm::validate($model);
+            die();
+        }
+        if (isset($_POST['RequestForm'])) {
+            $model->attributes = $_POST['RequestForm'];
+            $model->save();
+        }
+        $this->render('deposit',array('model'=>$model));
+    }
     public function actionUpdaterequest()
     {
         if(isset($_POST['delete'])){
