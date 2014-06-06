@@ -412,10 +412,11 @@ function moneyFormat(val){
 $.fn.dataTable = function(){
 	return this.each(function(){
 		var $root = $(this);
-		$root.find('.btn:not(.disabled)').bind('click', function(e){
+		$root.find('.btn').bind('click', function(e){
 			e.preventDefault();
 			var $el = $(this);
-			if(!$el.data('id')) return;
+			if($el.hasClass('disabled')) return false;
+			if(!$el.data('id')) return false;
 			var id = $el.data('id'),
 					url = $el.data('url'),
 					action = $el.data('action');
@@ -480,7 +481,8 @@ $(function(){
 				sumValue;
 
 		maxValue = available;
-		maxNoCredit = balance;
+		maxNoCredit = balance > 0 ? balance : 0;
+		balance = maxNoCredit;
 
 		if(window.location.href.indexOf('success=1') !== -1){
 			$.alert({
@@ -531,10 +533,9 @@ $(function(){
 
 		function calc(value){
 			sumValue = value;
-			log(value, percentfee, balance, days, percentcredit);
 			var fee = value <= maxNoCredit ?
-									value * percentfee / (100 + percentfee) : 
-									value * percentfee / (100 + percentfee) + (value - balance) * (days * percentcredit) / (100 + percentfee),
+									value * percentfee / (100) : 
+									value * percentfee / (100) + (value - balance) * (days * percentcredit) / (100),
 					rest = available - value,
 					usersum = value - fee;
 			if(value < 0){
@@ -547,7 +548,7 @@ $(function(){
 			} else {
 				$root.find('.btn.submit').removeClass('disabled');
 			}
-			$sumInput.val(value);
+			$sumInput.val(value > 0 ? value : 0);
 			$feeInput.val(moneyFormat(fee));
 			$feeSpan.text(moneyFormat(fee))
 			$restInput.val(moneyFormat(rest));
