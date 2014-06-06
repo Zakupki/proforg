@@ -15,7 +15,7 @@
                 if(isset($requests))
                 foreach($requests as $req){?>
                 <tr>
-                    <td><a class="btn check" data-id="<?=$req->id;?>" data-action="confirm" data-url="/finance/updaterequest"></a></td>
+                    <td><a class="btn check<?=($req->confirm)?' disabled':'';?>" data-id="<?=$req->id;?>" data-action="confirm" data-url="/finance/updaterequest"></a></td>
                     <td class="gray"><?=str_replace(',',' /',Yii::app()->dateFormatter->formatDateTime($req->date_create, 'short', 'short')); ?></td>
                     <td><a href="#"><?=$req->company->title;?></a></td>
                     <td><a href="#"><?=$req->user->last_name;?> <?=$req->user->first_name;?></a></td>
