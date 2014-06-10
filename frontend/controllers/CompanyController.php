@@ -55,7 +55,8 @@ class CompanyController extends FrontController
         $this->render('updateuser');
     }
     public function actionTest(){
-        Company::model()->paySalary();
+        echo $_SERVER['DOCUMENT_ROOT'];
+        //Company::model()->paySalary();
         //Company::model()->payCompanyPercents();
         return;
         $combal=Company::model()->getComBal(1);

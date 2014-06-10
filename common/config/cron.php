@@ -59,10 +59,9 @@ return array(
         // Your DB connection
         //newzakupki
         'db' => array(
-            'connectionString' => 'mysql:host=localhost;dbname=newzakup',
-            //'schemaCachingDuration' => 1,
-            'username' => 'u_newzakup',
-            'password' => 'IqUT5Ex0',
+            'connectionString' => 'mysql:host=localhost;dbname=devproforg',
+            'username' => 'u_bozhok',
+            'password' => 'bozhok1984',
             'tablePrefix' => 'z_'
         ),
         //newzakupki2
