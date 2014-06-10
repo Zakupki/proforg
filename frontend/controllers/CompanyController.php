@@ -20,9 +20,10 @@ class CompanyController extends FrontController
     public function actionIndex()
     {
        $users=array();
+       $balance=Company::model()->getBalance($this->userData['company_id']);
        if(isset($this->userData['company_id']))
        $users=User::model()->getCompanyUsers($this->userData['company_id']);
-       $this->render('index',array('users'=>$users));
+       $this->render('index',array('users'=>$users,'balance'=>$balance));
     }
     public function actionUpdateuser()
     {
@@ -52,5 +53,8 @@ class CompanyController extends FrontController
             $model->save();
         }
         $this->render('updateuser');
+    }
+    public function actionTest(){
+        
     }
 }
