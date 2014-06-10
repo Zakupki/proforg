@@ -119,21 +119,71 @@ class Company extends BaseActiveRecord
         return $result;
     }
 
-    public function getComBal($company_id){
+    public function getDebtCompanies(){
         $connection = Yii::app()->db;
         $sql = 'SELECT
-                          SUM(z_request.value) AS balance,
-                          SUM(z_request.value) AS balance,
-                          z_request.`company_id`,
-                          z_request.`finance_id`/*,
-                          z_request.**/
-                        FROM
-                          z_request
-                        WHERE z_request.`company_id` = :company_id
-                          AND z_request.`requesttype_id` IN (2,3,4)';
+                  0-SUM(z_request.value) AS `balance`,
+                  0-SUM(if(z_request.`requesttype_id`!=4,z_request.value,0)) AS `debt`,
+                  z_request.`company_id`,
+                  z_request.`finance_id`
+                FROM
+                  z_request
+                WHERE z_request.`requesttype_id` IN (2, 3, 4)
+                GROUP BY z_request.`company_id`
+                HAVING `balance` > 0 ';
         $command = $connection->createCommand($sql);
         $command->bindParam(":company_id", $company_id, PDO::PARAM_INT);
-        $result = $command->queryRow();
+        $result = $command->queryAll();
         return $result;
+    }
+    public function payCompanyPercents(){
+        $companies=Company::model()->getDebtCompanies(1);
+        foreach($companies as $combal){
+            if($combal['balance']>0){
+            //$combal['balance'] = 0 - $combal['balance'];
+            $tempbal=0;
+            $curid=null;
+            $reqIds=array();
+            $debtleft=$combal['balance'];
+            $totalpercents=0;
+            for (; ; ) {
+            $bal=Request::model()->getPrevRequest(array('company_id'=>$combal['company_id'],'id'=>$curid));
+            if(!isset($bal) || $combal['balance']<$tempbal){
+            break;
+            }
+            else {
+                $curid=$bal['id'];
+                $tempbal=$tempbal+$bal['value'];
+            }
+
+            if($debtleft>$bal['value']){
+                echo $bal['id'].' __ '.$bal['value'].' __ '.$bal['value'].' __ '.$bal['percent'].' __ '.(($bal['value']/100)*$bal['percent']).'<br/>';
+                $debtleft=$debtleft-$bal['value'];
+                if($bal['percent']>0){
+                    $totalpercents=$totalpercents+(($bal['value']/100)*$bal['percent']);
+                }
+
+            }
+            else{
+                echo $bal['id'].' __ '.$bal['value'].' __ '.($debtleft).' __ '.$bal['percent'].' __ '.($debtleft/100*$bal['percent']).'<br/>';
+                if($bal['percent']>0){
+                    $totalpercents=$totalpercents+($debtleft/100*$bal['percent']);
+                }
+            }
+            }
+            if($totalpercents>0){
+                $newrequest=new Request;
+                $newrequest->requesttype_id=4;
+                $newrequest->company_id=$combal['company_id'];
+                $newrequest->finance_id=$combal['finance_id'];
+                $newrequest->user_id=2;
+                $newrequest->date_create=new CDbExpression('NOW()');
+                $newrequest->value=-$totalpercents;
+                $newrequest->confirm=1;
+                $newrequest->save();
+
+            }
+            }
+        }
     }
 }

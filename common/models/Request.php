@@ -133,7 +133,7 @@ class Request extends BaseActiveRecord
         $connection = Yii::app()->db;
         $sql = 'SELECT
                          z_request.id,
-                         z_request.value,
+                         0-z_request.value AS value,
                          DATEDIFF(NOW(), z_request.`date_create`) AS datedif,
                           CASE
                             WHEN DATEDIFF(NOW(), z_request.`date_create`)>3

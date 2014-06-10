@@ -55,6 +55,9 @@ class CompanyController extends FrontController
         $this->render('updateuser');
     }
     public function actionTest(){
+
+        Company::model()->payCompanyPercents();
+        return;
         $combal=Company::model()->getComBal(1);
         print_r($combal);
         echo '<br/>';
