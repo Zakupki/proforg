@@ -62,7 +62,7 @@ class UserController extends FrontController
     }
     public function actionRequestupdate()
     {
-        $model = new RequestForm;
+        $model = new RequestForm('user');
         if (isset($_POST['ajax'])) {
             echo CActiveForm::validate($model);
             die();

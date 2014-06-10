@@ -16,6 +16,7 @@ class RequestForm extends CFormModel
     public $finance_id;
     public $left;
     public $commission;
+    public $requesttype_id;
     /**
      * Declares the validation rules.
      * The rules state that username and password are required,
@@ -24,9 +25,10 @@ class RequestForm extends CFormModel
     public function rules()
     {
         return array(
-            array('company_id, finance_id, card_id, value, available, left, commission', 'required'),
-            array('company_id, finance_id, user_id', 'numerical', 'integerOnly' => true),
+            array('company_id, finance_id, value', 'required'),
+            array('company_id, finance_id, user_id, card_id, requesttype_id', 'numerical', 'integerOnly' => true),
             array('value, available, left, commission', 'numerical'),
+            array('available, left, commission', 'safe'),
             array('company_id', 'exist', 'className' => 'Company', 'attributeName' => 'id'),
             array('finance_id', 'exist', 'className' => 'Finance', 'attributeName' => 'id'),
             array('user_id', 'exist', 'className' => 'User', 'attributeName' => 'id'),
@@ -40,7 +42,7 @@ class RequestForm extends CFormModel
     public function save()
     {
         $company = new Request();
-        if ($this->value > 0)
+        if ($this->value > 0 && $this->requesttype_id!=3)
             $this->value = -$this->value;
         $company->attributes=$this->attributes;
         $company->date_create=new CDbExpression('NOW()');

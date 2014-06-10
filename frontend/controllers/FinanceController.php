@@ -29,7 +29,7 @@ class FinanceController extends FrontController
     }
     public function actionDeposit()
     {
-        $model = new RequestForm;
+        $model = new RequestForm('deposit');
         if (isset($_POST['ajax'])) {
             echo CActiveForm::validate($model);
             die();
@@ -38,7 +38,7 @@ class FinanceController extends FrontController
             $model->attributes = $_POST['RequestForm'];
             $model->save();
         }
-        $this->render('deposit',array('model'=>$model));
+        $this->render('deposit',array('model'=>$model,'finance_id'=>$this->userData['finance_id']));
     }
     public function actionUpdaterequest()
     {
