@@ -39,6 +39,7 @@
                     <input type="hidden" class="balance-input" name="RequestForm[balance]" value="<?=$balance['balance'];?>">
                     <input type="hidden" class="salary-input" name="RequestForm[salary]" value="<?=$user->salary;?>">
                     <input type="hidden" class="salary-input" name="RequestForm[company_id]" value="<?=$company->id;?>">
+                    <input type="hidden" class="salary-input" name="RequestForm[requesttype_id]" value="2">
                     <? if(isset($card->id)){?>
                     <input type="hidden" class="salary-input" name="RequestForm[card_id]" value="<?=$card->id;?>">
                     <?}?>
