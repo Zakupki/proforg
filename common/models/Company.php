@@ -118,4 +118,22 @@ class Company extends BaseActiveRecord
         $result = $command->queryRow();
         return $result;
     }
+
+    public function getComBal($company_id){
+        $connection = Yii::app()->db;
+        $sql = 'SELECT
+                          SUM(z_request.value) AS balance,
+                          SUM(z_request.value) AS balance,
+                          z_request.`company_id`,
+                          z_request.`finance_id`/*,
+                          z_request.**/
+                        FROM
+                          z_request
+                        WHERE z_request.`company_id` = :company_id
+                          AND z_request.`requesttype_id` IN (2,3,4)';
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":company_id", $company_id, PDO::PARAM_INT);
+        $result = $command->queryRow();
+        return $result;
+    }
 }

@@ -124,4 +124,35 @@ class Request extends BaseActiveRecord
 
         return parent::searchInit($criteria);
     }
+    public function getPrevRequest($params=array()){
+
+        $whereSql='';
+        if(isset($params['id']))
+            $whereSql=' AND z_request.id<'.$params['id'];
+
+        $connection = Yii::app()->db;
+        $sql = 'SELECT
+                         z_request.id,
+                         z_request.value,
+                         DATEDIFF(NOW(), z_request.`date_create`) AS datedif,
+                          CASE
+                            WHEN DATEDIFF(NOW(), z_request.`date_create`)>3
+                            THEN 0.3
+                            WHEN DATEDIFF(NOW(), z_request.`date_create`)>2
+                            THEN 0.15
+                            ELSE NULL
+                          END AS percent
+                        FROM
+                          z_request
+                        WHERE z_request.`company_id` = :company_id
+                          AND z_request.`requesttype_id`=2
+                          '.$whereSql.'
+                        ORDER BY z_request.id DESC
+                        LIMIT 0,1
+                          ';
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":company_id", $params['company_id'], PDO::PARAM_INT);
+        $result = $command->queryRow();
+        return $result;
+    }
 }

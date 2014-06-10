@@ -55,6 +55,55 @@ class CompanyController extends FrontController
         $this->render('updateuser');
     }
     public function actionTest(){
-        
+        $combal=Company::model()->getComBal(1);
+        print_r($combal);
+        echo '<br/>';
+        if($combal['balance']<0){
+            $combal['balance'] = 0 - $combal['balance'];
+            $tempbal=0;
+            $curid=null;
+            $reqIds=array();
+            $debtleft=$combal['balance'];
+            $totalpercents=0;
+            for (; ; ) {
+                $bal=Request::model()->getPrevRequest(array('company_id'=>$combal['company_id'],'id'=>$curid));
+                if(!isset($bal) || $combal['balance']<$tempbal){
+                    break;
+                }
+                else {
+                    $curid=$bal['id'];
+                    $tempbal=$tempbal+(0-$bal['value']);
+                }
+
+                if($debtleft>(0-$bal['value'])){
+                    echo $bal['id'].' __ '.(0-$bal['value']).' __ '.(0-$bal['value']).' __ '.$bal['percent'].' __ '.(((0-$bal['value'])/100)*$bal['percent']).'<br/>';
+                    $debtleft=$debtleft-(0-$bal['value']);
+                    if($bal['percent']>0){
+                        $totalpercents=$totalpercents+(((0-$bal['value'])/100)*$bal['percent']);
+                    }
+
+                }
+                else{
+                    echo $bal['id'].' __ '.(0-$bal['value']).' __ '.($debtleft).' __ '.$bal['percent'].' __ '.($debtleft/100*$bal['percent']).'<br/>';
+                    if($bal['percent']>0){
+                        $totalpercents=$totalpercents+($debtleft/100*$bal['percent']);
+                    }
+                }
+            }
+            if($totalpercents>0){
+                $newrequest=new Request;
+                $newrequest->requesttype_id=4;
+                $newrequest->company_id=$combal['company_id'];
+                $newrequest->finance_id=$combal['finance_id'];
+                $newrequest->user_id=2;
+                $newrequest->date_create=new CDbExpression('NOW()');
+                $newrequest->value=-$totalpercents;
+                $newrequest->confirm=1;
+                //$newrequest->save();
+
+            }
+            echo $totalpercents;
+        }
+
     }
 }
