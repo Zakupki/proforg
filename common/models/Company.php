@@ -123,12 +123,12 @@ class Company extends BaseActiveRecord
         $connection = Yii::app()->db;
         $sql = 'SELECT
                   0-SUM(z_request.value) AS `balance`,
-                  0-SUM(if(z_request.`requesttype_id`!=4,z_request.value,0)) AS `debt`,
+                  /*0-SUM(if(z_request.`requesttype_id`!=4,z_request.value,0)) AS `debt`,*/
                   z_request.`company_id`,
                   z_request.`finance_id`
                 FROM
                   z_request
-                WHERE z_request.`requesttype_id` IN (2, 3, 4)
+                WHERE z_request.`requesttype_id` IN (2, 3)
                 GROUP BY z_request.`company_id`
                 HAVING `balance` > 0 ';
         $command = $connection->createCommand($sql);
@@ -155,17 +155,15 @@ class Company extends BaseActiveRecord
                 $curid=$bal['id'];
                 $tempbal=$tempbal+$bal['value'];
             }
-
             if($debtleft>$bal['value']){
-                echo $bal['id'].' __ '.$bal['value'].' __ '.$bal['value'].' __ '.$bal['percent'].' __ '.(($bal['value']/100)*$bal['percent']).'<br/>';
+                //echo $bal['id'].' __ '.$bal['value'].' __ '.$bal['value'].' __ '.$bal['percent'].' __ '.(($bal['value']/100)*$bal['percent']).'<br/>';
                 $debtleft=$debtleft-$bal['value'];
                 if($bal['percent']>0){
                     $totalpercents=$totalpercents+(($bal['value']/100)*$bal['percent']);
                 }
-
             }
             else{
-                echo $bal['id'].' __ '.$bal['value'].' __ '.($debtleft).' __ '.$bal['percent'].' __ '.($debtleft/100*$bal['percent']).'<br/>';
+                //echo $bal['id'].' __ '.$bal['value'].' __ '.($debtleft).' __ '.$bal['percent'].' __ '.($debtleft/100*$bal['percent']).'<br/>';
                 if($bal['percent']>0){
                     $totalpercents=$totalpercents+($debtleft/100*$bal['percent']);
                 }
@@ -184,6 +182,24 @@ class Company extends BaseActiveRecord
 
             }
             }
+        }
+    }
+    public function paySalary(){
+        $users=User::model()->with('employer')->findAll('t.usertype_id=2 AND t.employer_id>0 AND t.salary>0 AND t.salaryday='.date('j'));
+        foreach($users as $user){
+            //echo $user->employer->finance_id;
+            if(!isset($user->employer))
+                continue;
+            $req=new Request;
+            $req->requesttype_id=1;
+            $req->company_id=$user->employer_id;
+            $req->finance_id=$user->employer->finance_id;
+            $req->user_id=2;
+            $req->date_create=new CDbExpression('NOW()');
+            $req->value=$user->salary;
+            $req->confirm=1;
+            $req->save();
+            //print_r($req->getErrors());
         }
     }
 }

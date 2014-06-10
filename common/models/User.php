@@ -293,7 +293,7 @@ class User extends BaseActiveRecord
             'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
             'usertype_id' => array(self::BELONGS_TO, 'Company', 'company_id'),
             'finance' => array(self::BELONGS_TO, 'Finance', 'finance_id'),
-            'employer' => array(self::BELONGS_TO, 'Company', 'company_id'),
+            'employer' => array(self::BELONGS_TO, 'Company', 'employer_id'),
             //'userUsertypes' => array(self::MANY_MANY, 'Usertype', '{{user_usertype}}(user_id, usertype_id)', 'together' => true),
         );
     }

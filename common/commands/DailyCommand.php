@@ -7,8 +7,13 @@
  */ class DailyCommand extends CConsoleCommand {
     public function run($args)
     {
-       /* $contr=Yii::app()->controller;
-        $contr->layout="mail";*/
+        Company::model()->payCompanyPercents();
+        Company::model()->paySalary();
+
+    }
+
+    public function run2($args)
+    {
         $products=Purchase::model()->getNewPurchases();
         $productArr=array();
         foreach($products as $product){
