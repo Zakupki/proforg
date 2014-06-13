@@ -22,8 +22,8 @@
                 <th>День з/п</th>
                 <th>Размер з/п</th>
                 <th>Доступно</th>
-                <th>Погашено</th>
-                <th>Баланс</th>
+                <!--<th>Погашено</th>
+                <th>Баланс</th>-->
                 <th>Всего в году</th>
                 <th></th>
             </tr>
@@ -32,9 +32,9 @@
                 <td><a href="#"><?=$user['first_name'];?> <?=$user['name'];?> <?=$user['last_name'];?></a></td>
                 <td class="num"><?=$user['salaryday'];?></td>
                 <td class="num"><?=$user['salary'];?></td>
-                <td class="num"><?=$user['balance'];?></td>
-                <td class="num gray">0</td>
-                <td class="num gray">0</td>
+                <td class="num"><?=$user['balance']+$user['salary'];?></td>
+                <!--<td class="num gray">0</td>
+                <td class="num gray">0</td>-->
                 <td class="num gray"><?=$user['yearsalary'];?></td>
                 <td class="actions"><a class="btn cross" data-id="<?=$user['id'];?>" data-action="delete" data-url="/company/updateuser"></a></td>
             </tr>

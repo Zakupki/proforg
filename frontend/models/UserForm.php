@@ -31,11 +31,17 @@ class UserForm extends CFormModel
 
         $rules[] = array('employer_id,name,first_name,salaryday,salary,last_name,email', 'required');
         $rules[] = array('password,salary', 'safe');
+        $rules[] = array('email', 'uniqueemail');
         return $rules;
     }
-
+    public function uniqueemail()
+    {
+        if (User::model()->find('email="' . $this->email . '"'))
+            $this->addError('email', 'Пользователь с таким email уже зарегистрирован');
+    }
     public function save()
     {
+        Yii::import('common.extensions.yii-mail.*');
         $user = new User;
         if (!$this->getErrors()) {
             $user->name = $this->name;
@@ -46,8 +52,34 @@ class UserForm extends CFormModel
             $user->salary = $this->salary;
             $user->salaryday = $this->salaryday;
             $user->usertype_id = 2;
-            $user->password = Yii::app()->epassgen->generate();
+            $password=Yii::app()->epassgen->generate();
+            $user->password = $password;
             $user->save();
+            if(isset($user->id)){
+
+                $company=Company::model()->findByPk($this->employer_id);
+
+                $body ='
+                Добрый день, '.$this->first_name.' '.$this->name.' '.$this->last_name.'<br/><br/>
+                Вы были зарегистрированы как сотрудник компании '.$company->title.'.<br/>
+                Ваш оклад: '.$this->salary.'<br/>
+                День зарплаты: '.$this->salaryday.'<br/>
+
+                Данные для входа:<br/>
+                Ваш логин '.$this->email.'<br/>
+                Ваш пароль '.$password.'<br/>
+                ';
+                $message = new YiiMailMessage();
+                $message->setBody($body, 'text/html');
+                $message->setSubject('Регистрация');
+                $message->setTo($user->email);
+                $message->setFrom(array(
+                    'info@zakupki-online.com' => 'Prod-org.com'
+                ));
+
+                Yii::app()->mail->send($message);
+            }
+
             if (!$user->getErrors())
                 return true;
         }
