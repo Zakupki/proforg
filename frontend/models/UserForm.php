@@ -29,9 +29,10 @@ class UserForm extends CFormModel
     public function rules()
     {
 
-        $rules[] = array('employer_id,name,first_name,salaryday,salary,last_name,email', 'required');
-        $rules[] = array('password,salary', 'safe');
-        $rules[] = array('email', 'uniqueemail');
+        $rules[] = array('employer_id,name,first_name,salaryday,salary,last_name', 'required');
+        $rules[] = array('email','required','on'=>'create');
+        $rules[] = array('password,salary,id', 'safe');
+        $rules[] = array('email', 'uniqueemail', 'on'=>'create');
         return $rules;
     }
     public function uniqueemail()
@@ -42,7 +43,10 @@ class UserForm extends CFormModel
     public function save()
     {
         Yii::import('common.extensions.yii-mail.*');
-        $user = new User;
+        if(isset($this->id)){
+            $user=User::model()->findByPk($this->id);
+        }else
+        $user = new User('create');
         if (!$this->getErrors()) {
             $user->name = $this->name;
             $user->first_name = $this->first_name;
@@ -55,7 +59,7 @@ class UserForm extends CFormModel
             $password=Yii::app()->epassgen->generate();
             $user->password = $password;
             $user->save();
-            if(isset($user->id)){
+            if(isset($user->id) && !isset($this->id)){
 
                 $company=Company::model()->findByPk($this->employer_id);
 
@@ -79,7 +83,7 @@ class UserForm extends CFormModel
 
                 Yii::app()->mail->send($message);
             }
-
+            print_r($user->getErrors());
             if (!$user->getErrors())
                 return true;
         }
@@ -114,6 +118,12 @@ class UserForm extends CFormModel
         $profile->first_name = $user->first_name;
         $profile->position = $user->position;*/
         return $profile;
+    }
+    public static function findByPk($id){
+        $model = new UserForm;
+        $user=User::model()->findByPk($id);
+        $model->attributes=$user->attributes;
+        return $model;
     }
 
 

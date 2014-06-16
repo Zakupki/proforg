@@ -33,12 +33,12 @@ class CompanyController extends FrontController
             return;
         }
         if(isset($_GET['id']))
-            $model = User::model()->findByPk($_GET['id']);
-        elseif($_POST['UserForm']['id']){
-            $model = User::model()->findByPk($_POST['UserForm']['id']);
+            $model = UserForm::findByPk($_GET['id']);
+        elseif(isset($_POST['UserForm']['id'])){
+            $model = UserForm::findByPk($_POST['UserForm']['id']);
         }
         else
-        $model = new UserForm;
+        $model = new UserForm('create');
         if (isset($_POST['ajax'])) {
             echo CActiveForm::validate($model);
             die();

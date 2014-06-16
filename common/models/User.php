@@ -266,8 +266,9 @@ class User extends BaseActiveRecord
     public function rules()
     {
         return array(
-            array('email,salary,salaryday', 'required'),
-            array('email', 'unique','message'=>'Email уже есть в базе'),
+            array('salary,salaryday', 'required'),
+            array('email,salary,salaryday', 'required', 'on'=>'create'),
+            array('email', 'unique','message'=>'Email уже есть в базе', 'on'=>'create'),
             array('status, deleted, usertype_id, sort, salaryday', 'numerical', 'integerOnly' => true),
             array('login, email', 'length', 'max' => 64),
             array('password', 'length', 'min' => 6),

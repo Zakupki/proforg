@@ -18,10 +18,8 @@
                         <?php echo CHtml::activeTextField($model,'last_name', array('class' => 'txt w280', 'placeholder' => 'Фамилия')); ?>
                         <?php echo CHtml::activeTextField($model,'first_name', array('class' => 'txt w280', 'placeholder' => 'Имя')); ?>
                         <?php echo CHtml::activeTextField($model,'name', array('class' => 'txt w280', 'placeholder' => 'Отчество')); ?>
-                        <? if(isset($model->id)){?>
-                        <input type="hidden" name="UserForm[email]" value="<?=$model->email;?>"/>
-                        <?}else{?>
-                        <?php echo CHtml::activeTextField($model,'email', array('class' => 'txt w280', 'placeholder' => 'Email')); ?>
+                        <? if(!isset($model->id)){?>
+                            <?php echo CHtml::activeTextField($model,'email', array('class' => 'txt w280', 'placeholder' => 'Email')); ?>
                         <?}?>
                         <?php echo CHtml::activeTextField($model,'salary', array('class' => 'txt w280', 'placeholder' => 'Зарплата')); ?>
                         <?php echo CHtml::activeTextField($model,'salaryday', array('class' => 'txt w280', 'placeholder' => 'День зврплаты')); ?>
