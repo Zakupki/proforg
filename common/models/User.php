@@ -490,7 +490,7 @@ class User extends BaseActiveRecord
                   z_user.`last_name`,
                   z_user.`salaryday`,
                   z_user.`salary`,
-                  z_user.`salary`*12 AS yearsalary,
+                  z_user.`salary`*(12-MONTH(NOW())) AS yearsalary,
                   SUM(z_request.`value`) AS balance
                 FROM
                   z_user

@@ -28,21 +28,16 @@ class CompanyController extends FrontController
     public function actionUpdateuser()
     {
         if(isset($_POST['delete'])){
-
             User::model()->deleteByPk($_POST['delete']);
-            /*$card=Card::model()->deleteByPk($_POST['delete']);
-            $major=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId(),'major'=>1));
-            if(!$major){
-                $oldcard=Card::model()->findByAttributes(array('user_id'=>yii::app()->user->getId()));
-                if($oldcard){
-                    $oldcard->major=1;
-                    $oldcard->save();
-                }
-            }*/
             echo CJSON::encode(array('error'=>false,'status'=>'Сотрудник успешно удален'));
             return;
         }
-
+        if(isset($_GET['id']))
+            $model = User::model()->findByPk($_GET['id']);
+        elseif($_POST['UserForm']['id']){
+            $model = User::model()->findByPk($_POST['UserForm']['id']);
+        }
+        else
         $model = new UserForm;
         if (isset($_POST['ajax'])) {
             echo CActiveForm::validate($model);
@@ -54,7 +49,7 @@ class CompanyController extends FrontController
             $this->redirect('/company');
         }
 
-        $this->render('updateuser');
+        $this->render('updateuser',array('model'=>$model));
     }
     public function actionTest(){
         echo $_SERVER['DOCUMENT_ROOT'];

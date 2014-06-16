@@ -29,7 +29,7 @@
             </tr>
             <? foreach($users as $user){?>
             <tr>
-                <td><a href="#"><?=$user['last_name'];?> <?=$user['first_name'];?> <?=$user['name'];?></a></td>
+                <td><a href="/company/updateuser/?id=<?=$user['id'];?>"><?=$user['last_name'];?> <?=$user['first_name'];?> <?=$user['name'];?></a></td>
                 <td class="num"><?=$user['salaryday'];?></td>
                 <td class="num"><?=$user['salary'];?></td>
                 <td class="num"><?=$user['balance']+$user['salary'];?></td>
