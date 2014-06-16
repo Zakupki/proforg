@@ -497,7 +497,8 @@ class User extends BaseActiveRecord
                 LEFT JOIN  z_request
                   ON z_request.`user_id`=z_user.id
                 WHERE z_user.employer_id=:employer_id
-                GROUP BY z_user.id';
+                GROUP BY z_user.id
+                ORDER BY z_user.`last_name` ASC';
         $command = $connection->createCommand($sql);
         $command->bindParam(":employer_id", $employer_id, PDO::PARAM_INT);
         $result = $command->queryAll();
