@@ -15,7 +15,6 @@ class CompanyController extends FrontController
             $this->company=Company::model()->findByAttributes(array('id'=>$this->userData['company_id']));
             $this->companyname=$this->company->title;
         }
-
     }
     public function actionIndex()
     {
