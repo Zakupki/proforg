@@ -51,13 +51,16 @@ class UserForm extends CFormModel
             $user->name = $this->name;
             $user->first_name = $this->first_name;
             $user->last_name = $this->last_name;
-            $user->email = $this->email;
+            if(!isset( $this->id)){
+                $user->email = $this->email;
+                $password=Yii::app()->epassgen->generate();
+                $user->password = $password;
+            }
             $user->employer_id = $this->employer_id;
             $user->salary = $this->salary;
             $user->salaryday = $this->salaryday;
             $user->usertype_id = 2;
-            $password=Yii::app()->epassgen->generate();
-            $user->password = $password;
+
             $user->save();
             if(isset($user->id) && !isset($this->id)){
 
