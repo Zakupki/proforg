@@ -1,7 +1,7 @@
 <div class="content white">
     <div class="cw clearfix">
         <div class="c main">
-            <div class="arrowlabel-l">Сумма долга перед фин.компанией (грн.) </div>
+            <div class="arrowlabel-l">Баланс компании (грн.) </div>
             <div class="bignum"><span class="num"><?=$balance['balance'];?></span><!--<span class="num">3%<a class="help" href="#"></a></span>--></div>
             <div class="actions">
                 <a class="btn" href="#">История операций</a>
